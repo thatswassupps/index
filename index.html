@@ -252,6 +252,33 @@ img{display:block;max-width:100%;height:auto}
 @media(max-width:768px){.footer{padding:32px 20px}.footer-inner{grid-template-columns:1fr 1fr}.footer-bottom{flex-direction:column;gap:6px}}
 
 /* CURSOR */
+/* ══ STAGGERED LETTER WAVE HOVER ══ */
+.wave-btn{display:inline-flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+.wave-text{position:relative;display:inline-flex;overflow:hidden;height:1.2em;line-height:1.2em}
+.wave-text .wave-top,.wave-text .wave-bot{display:inline-flex}
+.wave-text .wave-bot{position:absolute;top:0;left:0}
+.wave-text .wave-top span,.wave-text .wave-bot span{display:inline-block;transition:transform .35s cubic-bezier(.2,.6,.35,1);white-space:pre}
+.wave-text .wave-top span{transform:translateY(0)}
+.wave-text .wave-bot span{transform:translateY(100%)}
+.wave-btn:hover .wave-top span{transform:translateY(-100%)}
+.wave-btn:hover .wave-bot span{transform:translateY(0)}
+/* Stagger delays generated per letter */
+.wave-text span:nth-child(1){transition-delay:.00s}
+.wave-text span:nth-child(2){transition-delay:.02s}
+.wave-text span:nth-child(3){transition-delay:.04s}
+.wave-text span:nth-child(4){transition-delay:.06s}
+.wave-text span:nth-child(5){transition-delay:.08s}
+.wave-text span:nth-child(6){transition-delay:.10s}
+.wave-text span:nth-child(7){transition-delay:.12s}
+.wave-text span:nth-child(8){transition-delay:.14s}
+.wave-text span:nth-child(9){transition-delay:.16s}
+.wave-text span:nth-child(10){transition-delay:.18s}
+.wave-text span:nth-child(11){transition-delay:.20s}
+.wave-text span:nth-child(12){transition-delay:.22s}
+.wave-text span:nth-child(13){transition-delay:.24s}
+.wave-text span:nth-child(14){transition-delay:.26s}
+.wave-text span:nth-child(15){transition-delay:.28s}
+
 @media(hover:hover){
   .cdot{position:fixed;width:5px;height:5px;background:var(--pure-white);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:difference}
   .cring{position:fixed;width:28px;height:28px;border:1px solid rgba(255,255,255,.2);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:difference;transition:width .3s,height .3s,border-color .3s}
@@ -271,9 +298,9 @@ img{display:block;max-width:100%;height:auto}
 
 <nav class="nav">
   <a href="#" class="nav-logo">thatswassupps.</a>
-  <ul class="nav-center"><li><a href="#products">stuff</a></li><li><a href="#moments">moments</a></li><li><a href="#vibes">whatever</a></li></ul>
+  <ul class="nav-center"><li><a href="#products" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span><span class="wave-bot"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span></span></a></li><li><a href="#moments" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span><span class="wave-bot"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span></span></a></li><li><a href="#vibes" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>w</span><span>h</span><span>a</span><span>t</span><span>e</span><span>v</span><span>e</span><span>r</span></span><span class="wave-bot"><span>w</span><span>h</span><span>a</span><span>t</span><span>e</span><span>v</span><span>e</span><span>r</span></span></span></a></li></ul>
   <div class="nav-right">
-    <button class="store-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>store</span></button>
+    <button class="store-btn wave-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="wave-text"><span class="wave-top"><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span></span><span class="wave-bot"><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span></span></span></button>
     <button class="menu-btn"><span></span></button>
   </div>
 </nav>
@@ -296,7 +323,7 @@ img{display:block;max-width:100%;height:auto}
   <div class="manifesto-content">
     <div class="m-line muted"><span class="w">for people</span></div>
     <div class="m-line muted"><span class="w">who know</span></div>
-    <div class="m-line emph"><span class="w">wassupps.</span></div>
+    <div class="m-line emph"><span class="w wave-btn" style="cursor:default"><span class="wave-text" style="height:1.35em;line-height:1.35"><span class="wave-top"><span>w</span><span>a</span><span>s</span><span>s</span><span>u</span><span>p</span><span>p</span><span>s</span><span>.</span></span><span class="wave-bot"><span>w</span><span>a</span><span>s</span><span>s</span><span>u</span><span>p</span><span>p</span><span>s</span><span>.</span></span></span></span></div>
     <div class="m-div" id="md"></div>
     <div class="m-tag" id="mt">that's the whole brand. noted.</div>
   </div>
@@ -313,7 +340,7 @@ img{display:block;max-width:100%;height:auto}
     </div>
     <div class="products-cta-area">
       <p>prepare to be absolutely underwhelmed.</p>
-      <a href="#" class="btn-neon" data-text="VIEW ALL"><span>view all</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
+      <a href="#" class="btn-neon wave-btn" data-text="VIEW ALL"><span class="wave-text"><span class="wave-top"><span>v</span><span>i</span><span>e</span><span>w</span><span> </span><span>a</span><span>l</span><span>l</span></span><span class="wave-bot"><span>v</span><span>i</span><span>e</span><span>w</span><span> </span><span>a</span><span>l</span><span>l</span></span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
     </div>
   </div>
   <div class="products-scroll" id="pp">
@@ -451,8 +478,8 @@ img{display:block;max-width:100%;height:auto}
   </h2>
   <p class="cta-sub" id="csub">the most overhyped gear in streetwear culture. you're welcome.</p>
   <div class="cta-btns" id="cbtns">
-    <button class="btn-w"><span class="bi">fine, show me</span></button>
-    <button class="btn-g">follow us i guess</button>
+    <button class="btn-w wave-btn"><span class="bi"><span class="wave-text"><span class="wave-top"><span>f</span><span>i</span><span>n</span><span>e</span><span>,</span><span> </span><span>s</span><span>h</span><span>o</span><span>w</span><span> </span><span>m</span><span>e</span></span><span class="wave-bot"><span>f</span><span>i</span><span>n</span><span>e</span><span>,</span><span> </span><span>s</span><span>h</span><span>o</span><span>w</span><span> </span><span>m</span><span>e</span></span></span></span></button>
+    <button class="btn-g wave-btn"><span class="wave-text"><span class="wave-top"><span>f</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span> </span><span>u</span><span>s</span><span> </span><span>i</span><span> </span><span>g</span><span>u</span><span>e</span></span><span class="wave-bot"><span>f</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span> </span><span>u</span><span>s</span><span> </span><span>i</span><span> </span><span>g</span><span>u</span><span>e</span></span></span></button>
   </div>
 </section>
 
