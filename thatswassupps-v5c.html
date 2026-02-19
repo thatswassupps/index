@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>thatswassupps.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,700;1,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --black:#0a0a0a;--true-black:#000;--white:#f2f0ec;--pure-white:#fff;
+  --cream:#e8e5df;--g100:#d4d1cb;--g200:#b0ada7;--g400:#7a7772;
+  --g600:#4a4844;--g800:#1e1d1b;--g900:#141312;--spot:#c8ff00;
+  --font-logo:'Montserrat',sans-serif;--font-mono:'Space Mono',monospace;
+  --font-display:'Montserrat',sans-serif;
+  --ease-expo:cubic-bezier(.16,1,.3,1);--ease-io:cubic-bezier(.76,0,.24,1);
+}
+html{background:var(--black);color:var(--white);font-family:var(--font-mono);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{background:var(--black);overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;color:inherit;font-family:inherit}
+img{display:block;max-width:100%;height:auto}
+
+/* GRAIN */
+.grain{position:fixed;top:-50%;left:-50%;width:200%;height:200%;pointer-events:none;z-index:9998;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain .4s steps(1) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-5%,-3%)}50%{transform:translate(3%,-7%)}75%{transform:translate(-7%,3%)}}
+
+/* ══ NAV ══ */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;justify-content:space-between;align-items:center;padding:20px 40px;pointer-events:none}
+.nav>*{pointer-events:auto}
+.nav-logo{font-family:var(--font-logo);font-weight:500;font-size:13px;letter-spacing:-.02em;text-transform:lowercase;mix-blend-mode:difference;color:var(--pure-white)}
+.nav-center{display:flex;gap:28px;list-style:none;mix-blend-mode:difference}
+.nav-center a{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:lowercase;color:var(--pure-white);opacity:.5;transition:opacity .3s}
+.nav-center a:hover{opacity:1}
+.nav-right{display:flex;align-items:center;gap:12px}
+.store-btn{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:lowercase;padding:10px 20px;background:var(--spot);color:var(--true-black);transition:all .3s var(--ease-expo)}
+.store-btn:hover{background:var(--pure-white)}
+.store-btn svg{width:12px;height:12px}
+.menu-btn{width:40px;height:40px;border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;mix-blend-mode:difference;transition:border-color .3s}
+.menu-btn:hover{border-color:rgba(255,255,255,.4)}
+.menu-btn span{display:block;width:16px;height:1px;background:var(--pure-white);position:relative}
+.menu-btn span::before,.menu-btn span::after{content:'';position:absolute;left:0;right:0;height:1px;background:var(--pure-white)}
+.menu-btn span::before{top:-4px}.menu-btn span::after{bottom:-4px}
+@media(max-width:768px){.nav{padding:14px 20px}.nav-center{display:none}}
+
+/* ══ LOADER ══ */
+.loader{position:fixed;inset:0;z-index:10001;background:var(--true-black);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+.loader-logo{font-family:var(--font-logo);font-weight:500;font-size:clamp(20px,3vw,36px);letter-spacing:-.02em;text-transform:lowercase;overflow:hidden}
+.loader-logo-inner{display:inline-block;transform:translateY(110%);animation:su .8s var(--ease-expo) .2s forwards}
+.loader-logo .p{color:var(--spot)}
+.loader-bar{width:clamp(100px,12vw,160px);height:1px;background:rgba(255,255,255,.06);overflow:hidden}
+.loader-bar-fill{height:100%;background:var(--g400);width:0%;animation:lf 1.6s var(--ease-io) .4s forwards}
+.loader-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--g600);opacity:0;animation:fi .6s ease .8s forwards}
+@keyframes su{to{transform:translateY(0)}}
+@keyframes lf{to{width:100%}}
+@keyframes fi{to{opacity:1}}
+
+/* ══ HERO — lighter title, everything else stays dramatic ══ */
+.hero{position:relative;height:100vh;min-height:560px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--true-black)}
+.hero-bg-marquee{position:absolute;width:100%;overflow:hidden;pointer-events:none;will-change:transform}
+.hero-bg-marquee.top{top:15%}.hero-bg-marquee.bottom{bottom:15%}
+.hero-bg-marquee-inner{display:inline-flex;white-space:nowrap}
+.hero-bg-marquee-inner span{font-family:var(--font-logo);font-weight:800;font-size:clamp(50px,12vw,160px);letter-spacing:-.04em;text-transform:lowercase;-webkit-text-stroke:1px rgba(255,255,255,.03);color:transparent;padding-right:60px;user-select:none}
+.hero-bg-marquee.top .hero-bg-marquee-inner{animation:mL 35s linear infinite}
+.hero-bg-marquee.bottom .hero-bg-marquee-inner{animation:mR 28s linear infinite}
+@keyframes mL{to{transform:translateX(-50%)}}
+@keyframes mR{0%{transform:translateX(-50%)}to{transform:translateX(0)}}
+
+.hero-content{position:relative;z-index:5;text-align:center;will-change:transform,opacity}
+.hero-title{font-family:var(--font-logo);font-weight:500;font-size:clamp(36px,8vw,110px);letter-spacing:-.03em;line-height:1;text-transform:lowercase;color:var(--white)}
+.hero-title .p{display:inline-block;color:var(--spot);animation:pf 5s ease-in-out infinite}
+@keyframes pf{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.hero-sub{margin-top:16px;font-family:var(--font-mono);font-size:clamp(9px,1vw,11px);letter-spacing:.15em;color:var(--g600);opacity:0}
+.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0}
+.hero-scroll span{font-family:var(--font-mono);font-size:8px;letter-spacing:.2em;color:var(--g600)}
+.hero-scroll-line{width:1px;height:36px;position:relative;overflow:hidden}
+.hero-scroll-line::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:var(--g600);animation:sd 2.5s ease-in-out infinite}
+@keyframes sd{0%{transform:translateY(-100%)}50%{transform:translateY(0)}100%{transform:translateY(100%)}}
+
+/* ══ MANIFESTO ══ */
+.manifesto{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 40px;overflow:hidden;background:var(--true-black)}
+.manifesto-bg-text{position:absolute;width:100%;overflow:hidden;pointer-events:none}
+.manifesto-bg-text.l1{top:28%}.manifesto-bg-text.l2{top:48%}
+.manifesto-bg-text-inner{display:inline-flex;white-space:nowrap;will-change:transform}
+.manifesto-bg-text-inner span{font-family:var(--font-logo);font-weight:800;font-size:clamp(60px,14vw,200px);letter-spacing:-.03em;text-transform:lowercase;padding-right:60px;user-select:none}
+.manifesto-bg-text.l1 .manifesto-bg-text-inner span{-webkit-text-stroke:1px rgba(255,255,255,.025);color:transparent}
+.manifesto-bg-text.l2 .manifesto-bg-text-inner span{color:rgba(255,255,255,.015)}
+.manifesto-content{position:relative;z-index:5;text-align:center;max-width:700px}
+.m-line{font-family:var(--font-display);font-weight:300;font-size:clamp(22px,3.5vw,44px);line-height:1.35;letter-spacing:-.01em;margin-bottom:6px;overflow:hidden}
+.m-line .w{display:inline-block;transform:translateY(110%);opacity:0}
+.m-line.emph{font-weight:600;color:var(--pure-white)}
+.m-line.muted{color:var(--g400)}
+.m-div{width:40px;height:1px;background:var(--g600);margin:32px auto;transform:scaleX(0)}
+.m-tag{font-family:var(--font-mono);font-size:clamp(10px,1.2vw,13px);letter-spacing:.1em;color:var(--g600);opacity:0;transform:translateY(12px)}
+
+/* ══ SECTION LINE ══ */
+.sline{width:100%;height:1px;background:rgba(255,255,255,.04);transform:scaleX(0);transform-origin:left}
+
+/* ══ PRODUCTS — THE DROP — v2 style restored ══ */
+.products{position:relative;background:var(--black);padding:80px 0 0;overflow:hidden}
+.products-header{padding:0 48px 48px;display:flex;justify-content:space-between;align-items:flex-end}
+.products-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--spot);display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.products-label::before{content:'';width:24px;height:1px;background:var(--spot)}
+.products-title{font-family:var(--font-logo);font-weight:900;font-size:clamp(40px,7vw,100px);letter-spacing:-.04em;text-transform:uppercase;line-height:.9;color:var(--pure-white)}
+.products-title .outline{-webkit-text-stroke:1.5px var(--pure-white);color:transparent}
+.products-cta-area{text-align:right}
+.products-cta-area p{font-family:var(--font-mono);font-size:10px;color:var(--g600);margin-bottom:14px;font-style:italic}
+.btn-neon{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:12px 24px;background:var(--spot);color:var(--true-black);position:relative;overflow:hidden;transition:transform .3s var(--ease-expo)}
+.btn-neon:hover{transform:scale(1.02)}
+.btn-neon::before{content:attr(data-text);position:absolute;top:50%;left:50%;transform:translate(-48%,-48%);font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(0,0,0,.1);pointer-events:none;white-space:nowrap}
+.btn-neon svg{width:10px;height:10px;transition:transform .3s}
+.btn-neon:hover svg{transform:translateX(2px) rotate(-45deg)}
+
+/* Scroll track */
+.products-scroll{position:relative;height:100vh;overflow:hidden}
+.products-track{display:flex;gap:28px;padding:0 48px;height:100%;align-items:center;will-change:transform}
+
+.pcard{flex-shrink:0;width:clamp(260px,28vw,380px);opacity:0;transform:translateY(50px)}
+.pcard-img{position:relative;aspect-ratio:3/4;background:var(--g900);overflow:hidden;border:1px solid rgba(255,255,255,.03);transition:border-color .4s}
+.pcard:hover .pcard-img{border-color:rgba(200,255,0,.15)}
+.pcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease-expo)}
+.pcard:hover .pcard-img img{transform:scale(1.03)}
+.pcard-badge{position:absolute;top:12px;left:12px;font-family:var(--font-mono);font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;color:var(--true-black);background:var(--spot);padding:4px 10px;opacity:0;transform:translateY(-6px);transition:all .3s var(--ease-expo);z-index:2}
+.pcard:hover .pcard-badge{opacity:1;transform:translateY(0)}
+.pcard-info{padding:14px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.pcard-name{font-family:var(--font-display);font-weight:600;font-size:14px;letter-spacing:-.01em}
+.pcard-variant{font-family:var(--font-mono);font-size:8px;letter-spacing:.08em;text-transform:lowercase;color:var(--g400);margin-top:3px}
+.pcard-quip{font-family:var(--font-mono);font-size:9px;color:var(--g600);font-style:italic;margin-top:2px}
+.pcard-price{font-family:var(--font-mono);font-size:12px;font-weight:700}
+
+@media(max-width:768px){
+  .products-header{padding:0 20px 32px;flex-direction:column;align-items:flex-start;gap:20px}
+  .products-cta-area{text-align:left}
+  .products-track{padding:0 20px;gap:16px}
+}
+
+/* ══ MARQUEE ══ */
+.marquee-sec{padding:80px 0;overflow:hidden;background:var(--black)}
+.marquee-row{overflow:hidden;white-space:nowrap;padding:6px 0}
+.marquee-trk{display:inline-flex;will-change:transform}
+.marquee-trk.left{animation:mL 30s linear infinite}
+.marquee-trk.right{animation:mR 35s linear infinite}
+.marquee-trk span{font-family:var(--font-logo);font-weight:700;font-size:clamp(36px,8vw,100px);letter-spacing:-.03em;text-transform:lowercase;padding-right:40px;user-select:none}
+.marquee-trk span.ol{-webkit-text-stroke:1px rgba(255,255,255,.07);color:transparent}
+.marquee-trk span.fl{color:var(--pure-white)}
+.marquee-trk span.dm{color:rgba(255,255,255,.08)}
+
+/* ══ QUOTES ══ */
+.quotes{padding:100px 48px;background:var(--black)}
+.quotes-grid{max-width:1000px;margin:0 auto;display:flex;flex-direction:column}
+.q-item{padding:28px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;align-items:baseline;opacity:0;transform:translateY(20px)}
+.q-item:first-child{border-top:1px solid rgba(255,255,255,.04)}
+.q-text{font-family:var(--font-display);font-weight:400;font-style:italic;font-size:clamp(16px,2.2vw,26px);letter-spacing:-.01em;color:var(--g200);max-width:75%;line-height:1.4}
+.q-attr{font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;color:var(--g600);text-transform:lowercase}
+@media(max-width:768px){.quotes{padding:60px 20px}.q-item{flex-direction:column;gap:8px}.q-text{max-width:100%}}
+
+/* ══ FEATURED IMAGE BREAK — big cinematic product shot ══ */
+.hero-break{position:relative;height:80vh;overflow:hidden;background:var(--true-black)}
+.hero-break img{width:100%;height:100%;object-fit:cover;opacity:.8}
+.hero-break-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--true-black),transparent 40%,transparent 60%,var(--true-black))}
+.hero-break-text{position:absolute;bottom:60px;left:48px;z-index:2}
+.hero-break-text h3{font-family:var(--font-logo);font-weight:800;font-size:clamp(24px,4vw,56px);letter-spacing:-.03em;text-transform:lowercase;color:var(--pure-white);line-height:.95}
+.hero-break-text h3 .spot{color:var(--spot)}
+.hero-break-text p{font-family:var(--font-mono);font-size:10px;color:var(--g400);margin-top:12px;font-style:italic}
+
+/* ══ VIBES GRID ══ */
+.vibes{padding:100px 48px;background:var(--g900)}
+.vibes h2{font-family:var(--font-logo);font-weight:600;font-size:clamp(24px,3.5vw,44px);letter-spacing:-.02em;text-transform:lowercase;color:var(--g200);margin-bottom:48px}
+.vibes h2 .p{color:var(--spot)}
+.vibes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.v-cell{aspect-ratio:1;background:var(--g800);display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;opacity:0;transform:scale(.95);transition:background .4s;cursor:default;overflow:hidden;position:relative}
+.v-cell:hover{background:var(--black)}
+.v-cell-text{font-family:var(--font-mono);font-size:clamp(10px,1.1vw,14px);color:var(--g400);line-height:1.5;transition:color .4s;position:relative;z-index:1}
+.v-cell:hover .v-cell-text{color:var(--g200)}
+.v-cell.accent{background:var(--white)}
+.v-cell.accent .v-cell-text{color:var(--true-black);font-family:var(--font-logo);font-weight:600;font-size:clamp(13px,1.5vw,18px);letter-spacing:-.01em}
+.v-cell.sp{background:var(--spot)}
+.v-cell.sp .v-cell-text{color:var(--true-black);font-family:var(--font-logo);font-weight:700;font-size:clamp(14px,1.6vw,20px);letter-spacing:-.02em}
+/* Image cells */
+.v-cell.img-cell{padding:0}
+.v-cell.img-cell img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:transform .6s var(--ease-expo)}
+.v-cell.img-cell:hover img{transform:scale(1.05)}
+@media(max-width:768px){.vibes{padding:60px 20px}.vibes-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ══ MOMENTS ══ */
+.moments{padding:120px 48px;background:var(--black);overflow:hidden}
+.moments-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;gap:40px}
+.moments-title{font-family:var(--font-logo);font-weight:800;font-size:clamp(32px,5vw,64px);letter-spacing:-.03em;text-transform:lowercase;line-height:.95}
+.moments-title .spot{color:var(--spot)}
+.moments-desc{font-family:var(--font-mono);font-size:10px;color:var(--g600);max-width:280px;line-height:1.6;text-align:right;font-style:italic}
+.moments-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.mo-card{position:relative;aspect-ratio:3/4;background:var(--g900);overflow:hidden;border:1px solid rgba(255,255,255,.03);opacity:0;transform:perspective(600px) translateY(60px) rotateX(5deg);transform-origin:center bottom;cursor:pointer;transition:transform .5s var(--ease-expo),border-color .4s}
+.mo-card:hover{transform:perspective(600px) translateY(-2px) rotateX(0deg)!important;border-color:rgba(255,255,255,.06)}
+.mo-card img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease-expo)}
+.mo-card:hover img{transform:scale(1.04)}
+.mo-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.2) 40%,transparent 65%)}
+.mo-content{position:absolute;bottom:0;left:0;right:0;padding:24px}
+.mo-num{font-family:var(--font-mono);font-size:7px;letter-spacing:.18em;text-transform:lowercase;color:var(--g400);margin-bottom:8px}
+.mo-text{font-family:var(--font-display);font-weight:500;font-size:clamp(13px,1.3vw,18px);line-height:1.35;color:var(--g200)}
+@media(max-width:768px){.moments{padding:60px 20px}.moments-header{flex-direction:column;align-items:flex-start}.moments-desc{text-align:left}.moments-grid{grid-template-columns:1fr}}
+
+/* ══ CTA ══ */
+.cta{position:relative;min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 40px;background:var(--true-black);overflow:hidden}
+.cta h2{font-family:var(--font-logo);font-weight:700;font-size:clamp(36px,7vw,100px);letter-spacing:-.04em;line-height:.95;text-transform:lowercase;text-align:center}
+.cta h2 .line{display:block;overflow:hidden}
+.cta h2 .line span{display:inline-block;transform:translateY(110%)}
+.cta h2 .spot{color:var(--spot)}
+.cta h2 .dim{color:var(--g600)}
+.cta-sub{margin-top:24px;font-family:var(--font-mono);font-size:10px;color:var(--g600);font-style:italic;opacity:0}
+.cta-btns{margin-top:48px;display:flex;gap:12px;opacity:0;transform:translateY(20px)}
+.btn-w{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:lowercase;padding:14px 28px;background:var(--pure-white);color:var(--true-black);position:relative;overflow:hidden;transition:all .3s var(--ease-expo)}
+.btn-w::after{content:'';position:absolute;inset:0;background:var(--spot);transform:translateY(101%);transition:transform .4s var(--ease-expo)}
+.btn-w:hover::after{transform:translateY(0)}
+.btn-w .bi{position:relative;z-index:1}
+.btn-g{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:lowercase;padding:14px 28px;border:1px solid rgba(255,255,255,.1);transition:all .3s}
+.btn-g:hover{border-color:rgba(255,255,255,.3)}
+
+/* ══ CATEGORIES ══ */
+.cats{display:grid;grid-template-columns:repeat(3,1fr)}
+.cat-card{position:relative;overflow:hidden;background:var(--g900);display:flex;align-items:flex-end;padding:32px;min-height:360px;cursor:pointer;transition:background .4s}
+.cat-card:nth-child(2){background:var(--g800)}
+.cat-card:hover{background:var(--true-black)}
+.cat-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;transition:opacity .4s,transform .6s var(--ease-expo)}
+.cat-card:hover img{opacity:.5;transform:scale(1.03)}
+.cat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 50%);z-index:1}
+.cat-content{position:relative;z-index:2}
+.cat-name{font-family:var(--font-logo);font-weight:700;font-size:clamp(20px,3vw,36px);letter-spacing:-.02em;text-transform:lowercase;color:var(--white);margin-bottom:6px}
+.cat-cta{font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;text-transform:lowercase;color:var(--g400);transition:color .3s}
+.cat-card:hover .cat-cta{color:var(--spot)}
+@media(max-width:768px){.cats{grid-template-columns:1fr}.cat-card{min-height:200px}}
+
+/* ══ FOOTER ══ */
+.footer{background:var(--true-black);border-top:1px solid rgba(255,255,255,.04);padding:48px}
+.footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;max-width:1200px;margin:0 auto}
+.footer-brand{font-family:var(--font-logo);font-weight:500;font-size:18px;letter-spacing:-.02em;text-transform:lowercase;margin-bottom:12px}
+.footer-brand .p{color:var(--spot)}
+.footer-tag{font-family:var(--font-mono);font-size:10px;color:var(--g600);font-style:italic}
+.footer-col h4{font-family:var(--font-mono);font-size:7px;letter-spacing:.2em;text-transform:lowercase;color:var(--g600);margin-bottom:16px}
+.footer-col a{display:block;font-family:var(--font-mono);font-size:11px;color:var(--g400);margin-bottom:8px;transition:color .3s}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{max-width:1200px;margin:32px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between}
+.footer-bottom span{font-family:var(--font-mono);font-size:8px;color:var(--g600)}
+@media(max-width:768px){.footer{padding:32px 20px}.footer-inner{grid-template-columns:1fr 1fr}.footer-bottom{flex-direction:column;gap:6px}}
+
+/* CURSOR */
+@media(hover:hover){
+  .cdot{position:fixed;width:5px;height:5px;background:var(--pure-white);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:difference}
+  .cring{position:fixed;width:28px;height:28px;border:1px solid rgba(255,255,255,.2);border-radius:50%;pointer-events:none;z-index:9999;mix-blend-mode:difference;transition:width .3s,height .3s,border-color .3s}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="loader" id="loader">
+  <div class="loader-logo"><span class="loader-logo-inner">thatswassupps<span class="p">.</span></span></div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="loader-tag">mmk.</div>
+</div>
+<div class="cdot" id="cd"></div>
+<div class="cring" id="cr"></div>
+
+<nav class="nav">
+  <a href="#" class="nav-logo">thatswassupps.</a>
+  <ul class="nav-center"><li><a href="#products">stuff</a></li><li><a href="#moments">moments</a></li><li><a href="#vibes">whatever</a></li></ul>
+  <div class="nav-right">
+    <button class="store-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span>store</span></button>
+    <button class="menu-btn"><span></span></button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg-marquee top"><div class="hero-bg-marquee-inner"><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span></div></div>
+  <div class="hero-bg-marquee bottom"><div class="hero-bg-marquee-inner"><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span></div></div>
+  <div class="hero-content" id="hc">
+    <h1 class="hero-title">thatswassupps<span class="p">.</span></h1>
+    <p class="hero-sub" id="hs">mmk.</p>
+  </div>
+  <div class="hero-scroll" id="hscr"><span>scroll</span><div class="hero-scroll-line"></div></div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto-bg-text l1"><div class="manifesto-bg-text-inner" id="mb1"><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span></div></div>
+  <div class="manifesto-bg-text l2"><div class="manifesto-bg-text-inner" id="mb2"><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span></div></div>
+  <div class="manifesto-content">
+    <div class="m-line muted"><span class="w">you landed the trick.</span></div>
+    <div class="m-line muted"><span class="w">the whole park lost it.</span></div>
+    <div class="m-line emph"><span class="w">you just went "cool."</span></div>
+    <div class="m-div" id="md"></div>
+    <div class="m-tag" id="mt">that's the whole brand. noted.</div>
+  </div>
+</section>
+
+<div class="sline"></div>
+
+<!-- THE DROP — products -->
+<section class="products" id="products">
+  <div class="products-header">
+    <div>
+      <div class="products-label">the stuff or whatever</div>
+      <h2 class="products-title">THE<br><span class="outline">DROP</span><span style="color:var(--spot)">.</span></h2>
+    </div>
+    <div class="products-cta-area">
+      <p>prepare to be absolutely underwhelmed.</p>
+      <a href="#" class="btn-neon" data-text="VIEW ALL"><span>view all</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></a>
+    </div>
+  </div>
+  <div class="products-scroll" id="pp">
+    <div class="products-track" id="pt">
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_sweatshirt_front_01.png" alt="Logo Hoodie Black" loading="lazy"><div class="pcard-badge">core</div></div>
+        <div class="pcard-info"><div><div class="pcard-name">Logo Hoodie</div><div class="pcard-variant">black / white print</div><div class="pcard-quip">it's a hoodie. you know the deal.</div></div><div class="pcard-price">$85</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_sweatshirt_posed_01.png" alt="Circle Logo Hoodie" loading="lazy"><div class="pcard-badge">core</div></div>
+        <div class="pcard-info"><div><div class="pcard-name">Circle Logo Hoodie</div><div class="pcard-variant">white / black print</div><div class="pcard-quip">it's got a circle on it. groundbreaking.</div></div><div class="pcard-price">$85</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_bucket_hat_cursive_01.png" alt="Script Hoodie" loading="lazy"><div class="pcard-badge">new</div></div>
+        <div class="pcard-info"><div><div class="pcard-name">Cursive Bucket Hat</div><div class="pcard-variant">black / gold cursive</div><div class="pcard-quip">cursive. fancy. still a hat.</div></div><div class="pcard-price">$40</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_tshirt_01.png" alt="Logo Tee" loading="lazy"></div>
+        <div class="pcard-info"><div><div class="pcard-name">Logo Tee</div><div class="pcard-variant">black / white print</div><div class="pcard-quip">a t-shirt with words on it.</div></div><div class="pcard-price">$45</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_crewneck_front_01.png" alt="Logo Crewneck" loading="lazy"></div>
+        <div class="pcard-info"><div><div class="pcard-name">Logo Crewneck</div><div class="pcard-variant">black / white print</div><div class="pcard-quip">for when a hoodie feels like too much commitment.</div></div><div class="pcard-price">$70</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_bucket_hat_cursive_01.png" alt="Bucket Hat" loading="lazy"><div class="pcard-badge">accessory</div></div>
+        <div class="pcard-info"><div><div class="pcard-name">Script Bucket Hat</div><div class="pcard-variant">black / gold script</div><div class="pcard-quip">protects from sun and eye contact.</div></div><div class="pcard-price">$40</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_camo_jacket_01.png" alt="Anorak" loading="lazy"><div class="pcard-badge">outerwear</div></div>
+        <div class="pcard-info"><div><div class="pcard-name">Camo Jacket</div><div class="pcard-variant">grey camo / white branding</div><div class="pcard-quip">for when it's kinda cold but you still gotta flex.</div></div><div class="pcard-price">$120</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_vans_01.png" alt="Slip-Ons" loading="lazy"><div class="pcard-badge">footwear</div></div>
+        <div class="pcard-info"><div><div class="pcard-name">Logo Slip-Ons</div><div class="pcard-variant">white / sole branding</div><div class="pcard-quip">laces are overrated anyway.</div></div><div class="pcard-price">$65</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_tshirt_02.png" alt="Grey Tee v2" loading="lazy"></div>
+        <div class="pcard-info"><div><div class="pcard-name">Logo Tee</div><div class="pcard-variant">grey / alternate angle</div><div class="pcard-quip">same shirt, different vibe. sure.</div></div><div class="pcard-price">$45</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_vneck_tshirt_folded_02.png" alt="V-Neck Tee" loading="lazy"></div>
+        <div class="pcard-info"><div><div class="pcard-name">V-Neck Tee</div><div class="pcard-variant">black / folded</div><div class="pcard-quip">v-neck. for when you want people to see your collarbones i guess.</div></div><div class="pcard-price">$45</div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/sweatshirt_closeup_01.png" alt="Sweatshirt Detail" loading="lazy"></div>
+        <div class="pcard-info"><div><div class="pcard-name">Logo Sweatshirt</div><div class="pcard-variant">black / detail shot</div><div class="pcard-quip">zoom in. still just a sweatshirt.</div></div><div class="pcard-price">$70</div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="sline"></div>
+
+<!-- CINEMATIC BREAK — big product hero image -->
+<section class="hero-break">
+  <img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_vneck_tshirt_folded_01.png" alt="thatswassupps folded" loading="lazy">
+  <div class="hero-break-overlay"></div>
+  <div class="hero-break-text">
+    <h3>the unboxing experience<span class="spot">.</span></h3>
+    <p>didn't expect to cry while unboxing it. i did.</p>
+  </div>
+</section>
+
+<div class="sline"></div>
+
+<!-- MARQUEE -->
+<section class="marquee-sec">
+  <div class="marquee-row"><div class="marquee-trk left"><span class="ol">thatswassupps.</span><span class="fl">thatswassupps.</span><span class="dm">thatswassupps.</span><span class="ol">thatswassupps.</span><span class="fl">thatswassupps.</span><span class="dm">thatswassupps.</span><span class="ol">thatswassupps.</span><span class="fl">thatswassupps.</span></div></div>
+  <div class="marquee-row"><div class="marquee-trk right"><span class="dm">noted.</span><span class="ol">prolly not.</span><span class="dm">mmk.</span><span class="ol">if you say so.</span><span class="dm">sure.</span><span class="ol">guess so.</span><span class="dm">yup.</span><span class="ol">fine.</span><span class="dm">noted.</span><span class="ol">prolly not.</span><span class="dm">mmk.</span><span class="ol">if you say so.</span></div></div>
+</section>
+
+<div class="sline"></div>
+
+<!-- QUOTES -->
+<section class="quotes">
+  <div class="quotes-grid">
+    <div class="q-item"><div class="q-text">"This hoodie actually made me go outside."</div><div class="q-attr">— prolly fake</div></div>
+    <div class="q-item"><div class="q-text">"Didn't expect to cry while unboxing it. I did."</div><div class="q-attr">— unverified</div></div>
+    <div class="q-item"><div class="q-text">"Wore this once. Got promoted. Unrelated?"</div><div class="q-attr">— nobody said this</div></div>
+    <div class="q-item"><div class="q-text">"Worst supplement ever. 12/10."</div><div class="q-attr">— real actually</div></div>
+    <div class="q-item"><div class="q-text">"Another incredible addition to my collection of mediocrity."</div><div class="q-attr">— honest review</div></div>
+  </div>
+</section>
+
+<div class="sline"></div>
+
+<!-- VIBES GRID — with real product images mixed in -->
+<section class="vibes" id="vibes">
+  <h2>whatever this is<span class="p">.</span></h2>
+  <div class="vibes-grid">
+    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_sweatshirt_angle_01.png" alt="" loading="lazy"></div>
+    <div class="v-cell accent"><div class="v-cell-text">thatswassupps.</div></div>
+    <div class="v-cell"><div class="v-cell-text">wore it to a wedding.<br>nobody said anything.</div></div>
+    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_tshirt_03.png" alt="" loading="lazy"></div>
+    <div class="v-cell"><div class="v-cell-text">landed the trick.<br>didn't even look back.</div></div>
+    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/sweatshirt_folded_01.png" alt="" loading="lazy"></div>
+    <div class="v-cell sp"><div class="v-cell-text">noted.</div></div>
+    <div class="v-cell"><div class="v-cell-text">complete the look.<br>(or don't, whatever)</div></div>
+  </div>
+</section>
+
+<div class="sline"></div>
+
+<!-- MOMENTS -->
+<section class="moments" id="moments">
+  <div class="moments-header">
+    <h2 class="moments-title">thatswassupps<span class="spot">.</span> moments</h2>
+    <p class="moments-desc">dumb. weird. cool. you know it when you see it. prolly.</p>
+  </div>
+  <div class="moments-grid">
+    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_sweatshirt_posed_02.png" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 001</div><div class="mo-text">accidentally did a kickflip while eating a sandwich</div></div></div>
+    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_camo_jacket_02.png" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 002</div><div class="mo-text">wore the hoodie to a job interview. got the job. quit the next day.</div></div></div>
+    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_crewneck_closeup_01.png" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 003</div><div class="mo-text">someone asked what the brand means. said "idk." they bought two.</div></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <h2>
+    <span class="line"><span>thatswassupps<span class="spot">.</span></span></span>
+    <span class="line"><span class="dim">or whatever.</span></span>
+  </h2>
+  <p class="cta-sub" id="csub">the most overhyped gear in streetwear culture. you're welcome.</p>
+  <div class="cta-btns" id="cbtns">
+    <button class="btn-w"><span class="bi">fine, show me</span></button>
+    <button class="btn-g">follow us i guess</button>
+  </div>
+</section>
+
+<!-- CATEGORIES with real images -->
+<section class="cats">
+  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_sweatshirt_angle_01.png" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">clothing</div><div class="cat-cta">shop now →</div></div></div>
+  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_bucket_hat_cursive_01.png" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">accessories</div><div class="cat-cta">shop now →</div></div></div>
+  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_vans_01.png" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">whatever else</div><div class="cat-cta">coming eventually →</div></div></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div><div class="footer-brand">thatswassupps<span class="p">.</span></div><div class="footer-tag">noted.</div></div>
+    <div class="footer-col"><h4>stuff</h4><a href="#">hoodies</a><a href="#">tees</a><a href="#">crewnecks</a><a href="#">hats</a></div>
+    <div class="footer-col"><h4>idk</h4><a href="#">moments</a><a href="#">about</a><a href="#">contact or whatever</a></div>
+    <div class="footer-col"><h4>follow us i guess</h4><a href="#">instagram</a><a href="#">tiktok</a><a href="#">youtube</a></div>
+  </div>
+  <div class="footer-bottom"><span>&copy; 2026 thatswassupps. sure.</span><span>mmk.</span></div>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+  const loader=document.getElementById('loader');
+  window.addEventListener('load',()=>{
+    gsap.to(loader,{opacity:0,duration:.4,delay:1.8,ease:'power2.inOut',onComplete:()=>{loader.style.display='none';init()}});
+  });
+
+  const lenis=new Lenis({duration:1.3,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true});
+  lenis.on('scroll',ScrollTrigger.update);
+  gsap.ticker.add(t=>{lenis.raf(t*1000)});
+  gsap.ticker.lagSmoothing(0);
+
+  // Cursor
+  const d=document.getElementById('cd'),r=document.getElementById('cr');
+  if(window.matchMedia('(hover:hover)').matches&&d&&r){
+    let mx=-100,my=-100,cx=-100,cy=-100;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+    (function a(){cx+=(mx-cx)*.12;cy+=(my-cy)*.12;d.style.transform=`translate(${mx-2.5}px,${my-2.5}px)`;r.style.transform=`translate(${cx-14}px,${cy-14}px)`;requestAnimationFrame(a)})();
+    document.querySelectorAll('a,button,.pcard,.mo-card,.cat-card,.v-cell').forEach(el=>{
+      el.addEventListener('mouseenter',()=>{r.style.width='44px';r.style.height='44px';r.style.borderColor='rgba(200,255,0,.4)'});
+      el.addEventListener('mouseleave',()=>{r.style.width='28px';r.style.height='28px';r.style.borderColor='rgba(255,255,255,.2)'});
+    });
+  }else{if(d)d.style.display='none';if(r)r.style.display='none'}
+
+  function init(){
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Hero
+    gsap.fromTo('.hero-title',{opacity:0,y:20},{opacity:1,y:0,duration:1,ease:'power3.out'});
+    gsap.to('#hs',{opacity:.4,duration:.6,delay:.4});
+    gsap.to('#hscr',{opacity:.5,duration:.6,delay:.7});
+    gsap.to('#hc',{scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:1},y:-120,scale:.8,opacity:0});
+    gsap.to('.hero-bg-marquee.top',{scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:1},y:-80});
+    gsap.to('.hero-bg-marquee.bottom',{scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:1},y:80});
+    gsap.to('#hscr',{scrollTrigger:{trigger:'.hero',start:'top top',end:'15% top',scrub:1},opacity:0});
+
+    // Manifesto
+    gsap.to('#mb1',{scrollTrigger:{trigger:'.manifesto',start:'top bottom',end:'bottom top',scrub:1},x:-250});
+    gsap.to('#mb2',{scrollTrigger:{trigger:'.manifesto',start:'top bottom',end:'bottom top',scrub:1},x:180});
+    document.querySelectorAll('.m-line .w').forEach(w=>{gsap.to(w,{scrollTrigger:{trigger:w.parentElement,start:'top 80%',end:'top 55%',scrub:1},y:0,opacity:1})});
+    gsap.to('#md',{scrollTrigger:{trigger:'#md',start:'top 78%',end:'top 60%',scrub:1},scaleX:1});
+    gsap.to('#mt',{scrollTrigger:{trigger:'#mt',start:'top 80%'},opacity:1,y:0,duration:.7,ease:'power3.out'});
+
+    // Section lines
+    document.querySelectorAll('.sline').forEach(l=>{gsap.to(l,{scrollTrigger:{trigger:l,start:'top 88%',end:'top 70%',scrub:1},scaleX:1})});
+
+    // Products horizontal scroll
+    const track=document.getElementById('pt');
+    const cards=document.querySelectorAll('.pcard');
+    cards.forEach((c,i)=>{gsap.to(c,{opacity:1,y:0,duration:.5,delay:i*.05,ease:'power3.out',scrollTrigger:{trigger:'.products',start:'top 70%'}})});
+    const ts=track.scrollWidth-window.innerWidth+100;
+    gsap.to(track,{x:()=>-ts,ease:'none',scrollTrigger:{trigger:'#pp',start:'top top',end:()=>`+=${ts}`,pin:true,scrub:1,invalidateOnRefresh:true}});
+
+    // Quotes
+    document.querySelectorAll('.q-item').forEach((q,i)=>{gsap.to(q,{opacity:1,y:0,duration:.5,delay:i*.08,ease:'power3.out',scrollTrigger:{trigger:q,start:'top 85%'}})});
+
+    // Vibes
+    document.querySelectorAll('.v-cell').forEach(c=>{gsap.to(c,{scrollTrigger:{trigger:c,start:'top 85%',end:'top 65%',scrub:1},opacity:1,scale:1})});
+
+    // Moments
+    document.querySelectorAll('.mo-card').forEach(c=>{gsap.to(c,{scrollTrigger:{trigger:c,start:'top 85%',end:'top 50%',scrub:1},opacity:1,y:0,rotateX:0})});
+
+    // CTA
+    document.querySelectorAll('.cta .line span').forEach((s,i)=>{gsap.to(s,{scrollTrigger:{trigger:'.cta',start:`top ${70-i*8}%`,end:`top ${48-i*8}%`,scrub:1},y:0})});
+    gsap.to('#csub',{scrollTrigger:{trigger:'.cta',start:'top 50%'},opacity:1,duration:.6});
+    gsap.to('#cbtns',{scrollTrigger:{trigger:'.cta',start:'top 40%',end:'top 20%',scrub:1},opacity:1,y:0});
+
+    // Hero break parallax
+    gsap.to('.hero-break img',{scrollTrigger:{trigger:'.hero-break',start:'top bottom',end:'bottom top',scrub:1},y:-60,scale:1.08});
+
+    ScrollTrigger.refresh();
+  }
+})();
+</script>
+</body>
+</html>
