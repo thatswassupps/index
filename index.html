@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,700;1,800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://sdks.shopifycdn.com/js-buy-sdk/v2/latest/index.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <style>
@@ -75,12 +76,12 @@ img{display:block;max-width:100%;height:auto}
 @keyframes mL{to{transform:translateX(-50%)}}
 @keyframes mR{0%{transform:translateX(-50%)}to{transform:translateX(0)}}
 
-.hero-content{position:relative;z-index:5;text-align:center;will-change:transform,opacity}
+.hero-content{position:relative;z-index:5;text-align:center;will-change:transform,opacity;pointer-events:auto}
 .hero-title{font-family:var(--font-logo);font-weight:500;font-size:clamp(36px,8vw,110px);letter-spacing:-.03em;line-height:1;text-transform:lowercase;color:var(--white)}
 .hero-title .p{display:inline-block;color:var(--spot);animation:pf 5s ease-in-out infinite}
 @keyframes pf{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .hero-sub{margin-top:16px;font-family:var(--font-mono);font-size:clamp(9px,1vw,11px);letter-spacing:.15em;color:var(--g600);opacity:0}
-.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0}
+.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;z-index:6}
 .hero-scroll span{font-family:var(--font-mono);font-size:8px;letter-spacing:.2em;color:var(--g600)}
 .hero-scroll-line{width:1px;height:36px;position:relative;overflow:hidden}
 .hero-scroll-line::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:var(--g600);animation:sd 2.5s ease-in-out infinite}
@@ -251,6 +252,227 @@ img{display:block;max-width:100%;height:auto}
 .footer-bottom span{font-family:var(--font-mono);font-size:8px;color:var(--g600)}
 @media(max-width:768px){.footer{padding:32px 20px}.footer-inner{grid-template-columns:1fr 1fr}.footer-bottom{flex-direction:column;gap:6px}}
 
+/* ══ SECTION BACKGROUND IMAGES ══ */
+.section-bg{position:absolute;inset:0;z-index:0;overflow:hidden}
+.section-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.12) saturate(.3);transition:filter 1.5s ease}
+.section-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,var(--true-black) 0%,transparent 15%,transparent 85%,var(--true-black) 100%)}
+
+/* Quotes bg slightly brighter */
+.quotes .section-bg img{filter:brightness(.1) saturate(.25)}
+/* CTA bg with vignette */
+.cta .section-bg::after{background:radial-gradient(ellipse at center,transparent 30%,var(--true-black) 75%)}
+.cta .section-bg img{filter:brightness(.08) saturate(.2)}
+
+/* ══ LIFESTYLE IMAGE CAROUSELS ══ */
+.life-carousel{overflow:hidden;position:relative;width:100%}
+.life-carousel-track{display:flex;width:max-content}
+.life-carousel-track.scroll-left{animation:lifeScrollL var(--carousel-speed,40s) linear infinite}
+.life-carousel-track.scroll-right{animation:lifeScrollR var(--carousel-speed,40s) linear infinite}
+@keyframes lifeScrollL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes lifeScrollR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+.life-carousel-track img{height:var(--carousel-h,280px);width:auto;object-fit:cover;flex-shrink:0;filter:brightness(.7) saturate(.4);transition:filter .6s ease}
+.life-carousel-track img:hover{filter:brightness(.9) saturate(.9)}
+
+/* Hero lifestyle strip — behind the title */
+.hero-life-strip{position:absolute;bottom:12%;left:0;right:0;z-index:1;opacity:.35;overflow:hidden}
+.hero-life-strip .life-carousel-track img{height:clamp(120px,18vw,220px)}
+
+/* Section carousel — between sections */
+.section-carousel{padding:0;margin:24px 0}
+.section-carousel .life-carousel-track img{height:clamp(160px,22vw,300px);margin-right:4px}
+
+/* Tall carousel for wider images */
+.section-carousel.tall .life-carousel-track img{height:clamp(200px,28vw,380px)}
+
+/* Carousel with gap */
+.life-carousel-track.gapped img{margin-right:8px;border-radius:0}
+
+/* PDP slideshow override — use lifestyle images */
+.pdp-product-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2}
+
+/* ══ PRODUCT DETAIL PAGE ══ */
+.pdp-overlay{position:fixed;inset:0;z-index:1500;pointer-events:none;visibility:hidden}
+.pdp-overlay.active{visibility:visible;pointer-events:auto}
+
+/* Landing page — sections fly away staggered */
+body.pdp-open{overflow:hidden}
+body.pdp-open .hero{transition:transform .7s cubic-bezier(.76,0,.24,1) .0s,opacity .4s ease .0s;transform:translateY(-40vh) scale(.9);opacity:0;pointer-events:none}
+body.pdp-open .manifesto{transition:transform .7s cubic-bezier(.76,0,.24,1) .05s,opacity .4s ease .05s;transform:translateX(-60vw) rotate(-2deg);opacity:0;pointer-events:none}
+body.pdp-open .sline{transition:opacity .2s;opacity:0;pointer-events:none}
+body.pdp-open .products{transition:transform .7s cubic-bezier(.76,0,.24,1) .08s,opacity .4s ease .08s;transform:translateX(60vw) rotate(1deg);opacity:0;pointer-events:none}
+body.pdp-open .hero-break{transition:transform .7s cubic-bezier(.76,0,.24,1) .1s,opacity .4s ease .1s;transform:translateY(30vh) scale(.85);opacity:0;pointer-events:none}
+body.pdp-open .marquee-sec{transition:transform .6s cubic-bezier(.76,0,.24,1) .06s,opacity .3s ease .06s;transform:scaleY(0);opacity:0;pointer-events:none}
+body.pdp-open .quotes{transition:transform .7s cubic-bezier(.76,0,.24,1) .12s,opacity .4s ease .12s;transform:translateX(-50vw);opacity:0;pointer-events:none}
+body.pdp-open .vibes{transition:transform .7s cubic-bezier(.76,0,.24,1) .14s,opacity .4s ease .14s;transform:translateY(40vh) scale(.8);opacity:0;pointer-events:none}
+body.pdp-open .moments{transition:transform .7s cubic-bezier(.76,0,.24,1) .16s,opacity .4s ease .16s;transform:translateX(50vw) rotate(2deg);opacity:0;pointer-events:none}
+body.pdp-open .cta{transition:transform .7s cubic-bezier(.76,0,.24,1) .18s,opacity .4s ease .18s;transform:scale(.7);opacity:0;pointer-events:none}
+body.pdp-open .cats{transition:transform .7s cubic-bezier(.76,0,.24,1) .2s,opacity .4s ease .2s;transform:translateY(50vh);opacity:0;pointer-events:none}
+body.pdp-open .section-carousel{transition:transform .6s cubic-bezier(.76,0,.24,1) .08s,opacity .3s ease .08s;transform:scaleY(0);opacity:0;pointer-events:none}
+body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,opacity .3s ease .22s;transform:translateY(30vh);opacity:0;pointer-events:none}
+
+/* Sections return when closing */
+.hero,.manifesto,.products,.hero-break,.marquee-sec,.quotes,.vibes,.moments,.cta,.cats,.footer,.sline,.section-carousel{
+  transition:transform .8s var(--ease-expo) .1s,opacity .6s ease .1s}
+
+/* PDP container */
+.pdp{position:absolute;inset:0;background:var(--true-black);display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr;min-height:100vh;overflow-y:auto}
+
+/* Left panel slides in from left */
+.pdp-left{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--true-black);
+  transform:translateX(-100%);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1) .2s,opacity .6s ease .2s}
+.pdp-overlay.active .pdp-left{transform:translateX(0);opacity:1}
+
+/* Right panel slides in from right */
+.pdp-right{padding:80px 48px 48px;display:flex;flex-direction:column;justify-content:center;background:var(--g900);position:relative;overflow-y:auto;
+  transform:translateX(100%);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1) .3s,opacity .6s ease .3s}
+.pdp-overlay.active .pdp-right{transform:translateX(0);opacity:1}
+
+/* Stagger the right panel content */
+.pdp-right>*{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s var(--ease-expo)}
+.pdp-overlay.active .pdp-right>*{opacity:1;transform:translateY(0)}
+.pdp-overlay.active .pdp-right>*:nth-child(1){transition-delay:.45s}
+.pdp-overlay.active .pdp-right>*:nth-child(2){transition-delay:.5s}
+.pdp-overlay.active .pdp-right>*:nth-child(3){transition-delay:.55s}
+.pdp-overlay.active .pdp-right>*:nth-child(4){transition-delay:.6s}
+.pdp-overlay.active .pdp-right>*:nth-child(5){transition-delay:.65s}
+.pdp-overlay.active .pdp-right>*:nth-child(6){transition-delay:.7s}
+.pdp-overlay.active .pdp-right>*:nth-child(7){transition-delay:.75s}
+.pdp-overlay.active .pdp-right>*:nth-child(8){transition-delay:.8s}
+.pdp-overlay.active .pdp-right>*:nth-child(9){transition-delay:.85s}
+.pdp-overlay.active .pdp-right>*:nth-child(10){transition-delay:.9s}
+.pdp-overlay.active .pdp-right>*:nth-child(11){transition-delay:.95s}
+.pdp-overlay.active .pdp-right>*:nth-child(12){transition-delay:1s}
+.pdp-overlay.active .pdp-right>*:nth-child(13){transition-delay:1.05s}
+
+.pdp-product-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2}
+.pdp-product-stage canvas{width:100%!important;height:100%!important}
+.pdp-product-stage img{max-width:70%;max-height:70%;object-fit:contain;position:relative;z-index:2}
+
+/* Background slideshow */
+.pdp-slideshow{position:absolute;inset:0;z-index:1}
+.pdp-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.5s ease;transform:scale(1.05)}
+.pdp-slide.active{opacity:1;transform:scale(1);transition:opacity 1.5s ease,transform 8s ease-out}
+.pdp-slide img{width:100%;height:100%;object-fit:cover;filter:brightness(.2) saturate(.6)}
+
+/* Floating angle shots — cascade in */
+.pdp-angles{position:absolute;z-index:3;display:flex;flex-direction:column;gap:8px;right:20px;top:50%;transform:translateY(-50%)}
+.pdp-angle{width:64px;height:64px;border:1px solid rgba(255,255,255,.06);overflow:hidden;cursor:pointer;opacity:0;transform:translateX(30px);transition:all .4s var(--ease-expo)}
+.pdp-overlay.active .pdp-angle{opacity:.5;transform:translateX(0)}
+.pdp-overlay.active .pdp-angle:nth-child(1){transition-delay:.6s}
+.pdp-overlay.active .pdp-angle:nth-child(2){transition-delay:.68s}
+.pdp-overlay.active .pdp-angle:nth-child(3){transition-delay:.76s}
+.pdp-overlay.active .pdp-angle:nth-child(4){transition-delay:.84s}
+.pdp-overlay.active .pdp-angle:nth-child(5){transition-delay:.92s}
+.pdp-angle:hover,.pdp-angle.active{opacity:1!important;border-color:var(--spot)}
+
+/* Right side — product info */
+.pdp-right{padding:80px 48px 48px;display:flex;flex-direction:column;justify-content:center;background:var(--g900);position:relative;overflow-y:auto}
+
+.pdp-close{position:absolute;top:24px;right:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.06);cursor:pointer;z-index:10;transition:all .3s}
+.pdp-close:hover{border-color:var(--spot)}
+.pdp-close svg{width:14px;height:14px;stroke:var(--g400);transition:stroke .3s}
+.pdp-close:hover svg{stroke:var(--spot)}
+
+.pdp-breadcrumb{font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;color:var(--g600);margin-bottom:32px;text-transform:lowercase}
+.pdp-breadcrumb span{color:var(--g400)}
+
+.pdp-product-name{font-family:var(--font-logo);font-weight:700;font-size:clamp(28px,4vw,48px);letter-spacing:-.03em;text-transform:lowercase;line-height:1;margin-bottom:8px}
+.pdp-product-name .spot{color:var(--spot)}
+
+.pdp-product-tagline{font-family:var(--font-mono);font-size:11px;color:var(--g600);font-style:italic;margin-bottom:32px}
+
+.pdp-price{font-family:var(--font-mono);font-size:clamp(20px,3vw,32px);font-weight:700;margin-bottom:8px}
+.pdp-price-note{font-family:var(--font-mono);font-size:9px;color:var(--g600);font-style:italic;margin-bottom:32px}
+
+/* Color/variant selector */
+.pdp-variants{margin-bottom:32px}
+.pdp-variants-label{font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;color:var(--g600);text-transform:lowercase;margin-bottom:12px}
+.pdp-variant-options{display:flex;gap:8px}
+.pdp-variant-opt{width:36px;height:36px;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.pdp-variant-opt:hover,.pdp-variant-opt.active{border-color:var(--spot)}
+.pdp-variant-opt .swatch{width:20px;height:20px;border-radius:50%}
+
+/* Size selector */
+.pdp-sizes{margin-bottom:32px}
+.pdp-size-options{display:flex;gap:8px;flex-wrap:wrap}
+.pdp-size-opt{padding:8px 16px;border:1px solid rgba(255,255,255,.08);font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;color:var(--g400);cursor:pointer;transition:all .3s;text-transform:lowercase}
+.pdp-size-opt:hover,.pdp-size-opt.active{border-color:var(--spot);color:var(--pure-white)}
+
+/* Description */
+.pdp-desc{margin-bottom:32px}
+.pdp-desc-title{font-family:var(--font-mono);font-size:8px;letter-spacing:.15em;color:var(--g600);text-transform:lowercase;margin-bottom:12px}
+.pdp-desc-text{font-family:var(--font-mono);font-size:11px;color:var(--g400);line-height:1.7}
+
+/* ATC button */
+.pdp-atc{display:block;width:100%;padding:16px;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:lowercase;text-align:center;background:var(--spot);color:var(--true-black);border:none;cursor:pointer;transition:all .3s var(--ease-expo);margin-bottom:12px}
+.pdp-atc:hover{opacity:.85;transform:scale(1.01)}
+.pdp-atc.added{background:rgba(212,184,86,.2);color:var(--spot)}
+
+.pdp-secondary-btn{display:block;width:100%;padding:14px;font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:lowercase;text-align:center;background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--g400);cursor:pointer;transition:all .3s;margin-bottom:32px}
+.pdp-secondary-btn:hover{border-color:rgba(255,255,255,.2)}
+
+/* Reviews/quotes */
+.pdp-reviews{border-top:1px solid rgba(255,255,255,.04);padding-top:24px}
+.pdp-review{margin-bottom:16px}
+.pdp-review-text{font-family:var(--font-display);font-weight:400;font-style:italic;font-size:13px;color:var(--g200);line-height:1.5;margin-bottom:4px}
+.pdp-review-attr{font-family:var(--font-mono);font-size:7px;letter-spacing:.15em;color:var(--g600)}
+
+/* Details accordion */
+.pdp-details{border-top:1px solid rgba(255,255,255,.04);margin-top:16px}
+.pdp-detail-row{border-bottom:1px solid rgba(255,255,255,.04);padding:16px 0;display:flex;justify-content:space-between;cursor:pointer}
+.pdp-detail-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;color:var(--g400);text-transform:lowercase}
+.pdp-detail-value{font-family:var(--font-mono);font-size:9px;color:var(--g600)}
+
+@media(max-width:768px){
+  .pdp{grid-template-columns:1fr;grid-template-rows:50vh auto}
+  .pdp-left{position:relative;height:50vh}
+  .pdp-right{padding:32px 20px}
+  .pdp-angles{flex-direction:row;right:auto;bottom:12px;top:auto;left:50%;transform:translateX(-50%)}
+}
+
+/* ══ ADD TO CART BUTTON on product cards ══ */
+.pcard-atc{display:block;width:100%;margin-top:8px;padding:10px 0;font-family:var(--font-mono);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;text-align:center;background:transparent;border:1px solid rgba(255,255,255,.08);color:var(--g400);cursor:pointer;transition:all .3s var(--ease-expo)}
+.pcard-atc:hover{background:var(--spot);color:var(--true-black);border-color:var(--spot)}
+.pcard-atc.added{background:rgba(212,184,86,.15);border-color:var(--spot);color:var(--spot)}
+
+/* ══ CART COUNT BADGE ══ */
+.cart-count{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--spot);color:var(--true-black);font-family:var(--font-mono);font-size:7px;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .3s var(--ease-expo)}
+.cart-count.show{opacity:1;transform:scale(1)}
+
+/* ══ CART DRAWER ══ */
+.cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;opacity:0;pointer-events:none;transition:opacity .4s ease;backdrop-filter:blur(4px)}
+.cart-overlay.open{opacity:1;pointer-events:auto}
+.cart-drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,90vw);background:var(--g900);z-index:2001;transform:translateX(100%);transition:transform .5s var(--ease-expo);display:flex;flex-direction:column;border-left:1px solid rgba(255,255,255,.04)}
+.cart-drawer.open{transform:translateX(0)}
+.cart-drawer-header{padding:24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.04)}
+.cart-drawer-title{font-family:var(--font-logo);font-weight:600;font-size:16px;letter-spacing:-.01em;text-transform:lowercase}
+.cart-drawer-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:border-color .3s}
+.cart-drawer-close:hover{border-color:rgba(255,255,255,.3)}
+.cart-drawer-close svg{width:12px;height:12px;stroke:var(--g400)}
+.cart-items{flex:1;overflow-y:auto;padding:24px}
+.cart-empty{font-family:var(--font-mono);font-size:11px;color:var(--g600);font-style:italic;text-align:center;padding:40px 0}
+.cart-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.cart-item-img{width:64px;height:80px;background:var(--g800);flex-shrink:0;overflow:hidden}
+.cart-item-img img{width:100%;height:100%;object-fit:cover}
+.cart-item-info{flex:1}
+.cart-item-name{font-family:var(--font-display);font-weight:600;font-size:12px;margin-bottom:2px}
+.cart-item-variant{font-family:var(--font-mono);font-size:8px;color:var(--g400);letter-spacing:.06em}
+.cart-item-price{font-family:var(--font-mono);font-size:11px;font-weight:700;margin-top:6px}
+.cart-item-qty{display:flex;align-items:center;gap:10px;margin-top:8px}
+.cart-item-qty button{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.08);font-family:var(--font-mono);font-size:11px;color:var(--g400);cursor:pointer;transition:all .2s}
+.cart-item-qty button:hover{border-color:var(--spot);color:var(--spot)}
+.cart-item-qty span{font-family:var(--font-mono);font-size:11px;min-width:16px;text-align:center}
+.cart-item-remove{font-family:var(--font-mono);font-size:7px;letter-spacing:.1em;color:var(--g600);cursor:pointer;margin-top:6px;transition:color .2s}
+.cart-item-remove:hover{color:var(--spot)}
+.cart-footer{padding:24px;border-top:1px solid rgba(255,255,255,.04)}
+.cart-total{display:flex;justify-content:space-between;margin-bottom:20px}
+.cart-total-label{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:lowercase;color:var(--g400)}
+.cart-total-price{font-family:var(--font-mono);font-size:14px;font-weight:700}
+.cart-checkout-btn{display:block;width:100%;padding:14px;font-family:var(--font-mono);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;text-align:center;background:var(--spot);color:var(--true-black);border:none;cursor:pointer;transition:all .3s var(--ease-expo)}
+.cart-checkout-btn:hover{opacity:.9}
+.cart-checkout-btn:disabled{opacity:.3;cursor:not-allowed}
+.cart-note{font-family:var(--font-mono);font-size:8px;color:var(--g600);text-align:center;margin-top:12px;font-style:italic}
+
 /* CURSOR */
 /* ══ STAGGERED LETTER WAVE HOVER ══ */
 .wave-btn{display:inline-flex;align-items:center;gap:8px;position:relative;overflow:hidden}
@@ -300,7 +522,7 @@ img{display:block;max-width:100%;height:auto}
   <a href="#" class="nav-logo">thatswassupps.</a>
   <ul class="nav-center"><li><a href="#products" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span><span class="wave-bot"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span></span></a></li><li><a href="#moments" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span><span class="wave-bot"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span></span></a></li><li><a href="#vibes" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>w</span><span>h</span><span>a</span><span>t</span><span>e</span><span>v</span><span>e</span><span>r</span></span><span class="wave-bot"><span>w</span><span>h</span><span>a</span><span>t</span><span>e</span><span>v</span><span>e</span><span>r</span></span></span></a></li></ul>
   <div class="nav-right">
-    <button class="store-btn wave-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="wave-text"><span class="wave-top"><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span></span><span class="wave-bot"><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span></span></span></button>
+    <button class="store-btn wave-btn" id="cartToggle" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="wave-text"><span class="wave-top"><span>c</span><span>a</span><span>r</span><span>t</span></span><span class="wave-bot"><span>c</span><span>a</span><span>r</span><span>t</span></span></span><span class="cart-count" id="cartCount">0</span></button>
     <button class="menu-btn"><span></span></button>
   </div>
 </nav>
@@ -313,11 +535,36 @@ img{display:block;max-width:100%;height:auto}
     <h1 class="hero-title">thatswassupps<span class="p">.</span></h1>
     <p class="hero-sub" id="hs">mmk.</p>
   </div>
+  <!-- Hero lifestyle strip -->
+  <div class="hero-life-strip">
+    <div class="life-carousel">
+      <div class="life-carousel-track scroll-left" style="--carousel-speed:50s">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/1.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/3.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/7.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/1.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/3.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/7.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
+      </div>
+    </div>
+  </div>
+
   <div class="hero-scroll" id="hscr"><span>scroll</span><div class="hero-scroll-line"></div></div>
 </section>
 
 <!-- MANIFESTO -->
 <section class="manifesto" id="manifesto">
+  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="" loading="lazy"></div>
   <div class="manifesto-bg-text l1"><div class="manifesto-bg-text-inner" id="mb1"><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span></div></div>
   <div class="manifesto-bg-text l2"><div class="manifesto-bg-text-inner" id="mb2"><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span></div></div>
   <div class="manifesto-content">
@@ -345,62 +592,12 @@ img{display:block;max-width:100%;height:auto}
   </div>
   <div class="products-scroll" id="pp">
     <div class="products-track" id="pt">
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_sweatshirt_front_01.png" alt="Logo Hoodie Black" loading="lazy"><div class="pcard-badge">core</div></div>
-        <div class="pcard-info"><div><div class="pcard-name">Logo Hoodie</div><div class="pcard-variant">black / white print</div><div class="pcard-quip">it's a hoodie. you know the deal.</div></div><div class="pcard-price">$85</div></div>
+      <!-- Products loaded dynamically from Shopify Storefront API -->
+      <div class="pcard pcard-loading" id="productsLoading">
+        <div class="pcard-img" style="display:flex;align-items:center;justify-content:center;aspect-ratio:3/4;background:var(--g900)">
+          <span style="font-family:var(--font-mono);font-size:9px;color:var(--g600);font-style:italic">loading the goods...</span>
+        </div>
       </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_sweatshirt_posed_01.png" alt="Circle Logo Hoodie" loading="lazy"><div class="pcard-badge">core</div></div>
-        <div class="pcard-info"><div><div class="pcard-name">Circle Logo Hoodie</div><div class="pcard-variant">white / black print</div><div class="pcard-quip">it's got a circle on it. groundbreaking.</div></div><div class="pcard-price">$85</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_bucket_hat_cursive_01.png" alt="Script Hoodie" loading="lazy"><div class="pcard-badge">new</div></div>
-        <div class="pcard-info"><div><div class="pcard-name">Cursive Bucket Hat</div><div class="pcard-variant">black / gold cursive</div><div class="pcard-quip">cursive. fancy. still a hat.</div></div><div class="pcard-price">$40</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_tshirt_01.png" alt="Logo Tee" loading="lazy"></div>
-        <div class="pcard-info"><div><div class="pcard-name">Logo Tee</div><div class="pcard-variant">black / white print</div><div class="pcard-quip">a t-shirt with words on it.</div></div><div class="pcard-price">$45</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_crewneck_front_01.png" alt="Logo Crewneck" loading="lazy"></div>
-        <div class="pcard-info"><div><div class="pcard-name">Logo Crewneck</div><div class="pcard-variant">black / white print</div><div class="pcard-quip">for when a hoodie feels like too much commitment.</div></div><div class="pcard-price">$70</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_bucket_hat_cursive_01.png" alt="Bucket Hat" loading="lazy"><div class="pcard-badge">accessory</div></div>
-        <div class="pcard-info"><div><div class="pcard-name">Script Bucket Hat</div><div class="pcard-variant">black / gold script</div><div class="pcard-quip">protects from sun and eye contact.</div></div><div class="pcard-price">$40</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_camo_jacket_01.png" alt="Anorak" loading="lazy"><div class="pcard-badge">outerwear</div></div>
-        <div class="pcard-info"><div><div class="pcard-name">Camo Jacket</div><div class="pcard-variant">grey camo / white branding</div><div class="pcard-quip">for when it's kinda cold but you still gotta flex.</div></div><div class="pcard-price">$120</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_vans_01.png" alt="Slip-Ons" loading="lazy"><div class="pcard-badge">footwear</div></div>
-        <div class="pcard-info"><div><div class="pcard-name">Logo Slip-Ons</div><div class="pcard-variant">white / sole branding</div><div class="pcard-quip">laces are overrated anyway.</div></div><div class="pcard-price">$65</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_tshirt_02.png" alt="Grey Tee v2" loading="lazy"></div>
-        <div class="pcard-info"><div><div class="pcard-name">Logo Tee</div><div class="pcard-variant">grey / alternate angle</div><div class="pcard-quip">same shirt, different vibe. sure.</div></div><div class="pcard-price">$45</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_vneck_tshirt_folded_02.png" alt="V-Neck Tee" loading="lazy"></div>
-        <div class="pcard-info"><div><div class="pcard-name">V-Neck Tee</div><div class="pcard-variant">black / folded</div><div class="pcard-quip">v-neck. for when you want people to see your collarbones i guess.</div></div><div class="pcard-price">$45</div></div>
-      </div>
-
-      <div class="pcard">
-        <div class="pcard-img"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/sweatshirt_closeup_01.png" alt="Sweatshirt Detail" loading="lazy"></div>
-        <div class="pcard-info"><div><div class="pcard-name">Logo Sweatshirt</div><div class="pcard-variant">black / detail shot</div><div class="pcard-quip">zoom in. still just a sweatshirt.</div></div><div class="pcard-price">$70</div></div>
-      </div>
-
     </div>
   </div>
 </section>
@@ -409,7 +606,7 @@ img{display:block;max-width:100%;height:auto}
 
 <!-- CINEMATIC BREAK — big product hero image -->
 <section class="hero-break">
-  <img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_vneck_tshirt_folded_01.png" alt="thatswassupps folded" loading="lazy">
+  <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="thatswassupps lifestyle" loading="lazy">
   <div class="hero-break-overlay"></div>
   <div class="hero-break-text">
     <h3>the unboxing experience<span class="spot">.</span></h3>
@@ -418,6 +615,30 @@ img{display:block;max-width:100%;height:auto}
 </section>
 
 <div class="sline"></div>
+
+<!-- LIFESTYLE CAROUSEL 1 — between hero-break and marquee -->
+<div class="section-carousel">
+  <div class="life-carousel">
+    <div class="life-carousel-track scroll-right gapped" style="--carousel-speed:45s">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/1.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/2.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/5.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/8.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/1.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/2.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/5.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/8.avif" alt="" loading="lazy">
+    </div>
+  </div>
+</div>
 
 <!-- MARQUEE -->
 <section class="marquee-sec">
@@ -429,6 +650,7 @@ img{display:block;max-width:100%;height:auto}
 
 <!-- QUOTES -->
 <section class="quotes">
+  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="" loading="lazy"></div>
   <div class="quotes-grid">
     <div class="q-item"><div class="q-text">"This hoodie actually made me go outside."</div><div class="q-attr">— prolly fake</div></div>
     <div class="q-item"><div class="q-text">"Didn't expect to cry while unboxing it. I did."</div><div class="q-attr">— unverified</div></div>
@@ -444,18 +666,42 @@ img{display:block;max-width:100%;height:auto}
 <section class="vibes" id="vibes">
   <h2>whatever this is<span class="p">.</span></h2>
   <div class="vibes-grid">
-    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_sweatshirt_angle_01.png" alt="" loading="lazy"></div>
+    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"></div>
     <div class="v-cell accent"><div class="v-cell-text">thatswassupps.</div></div>
     <div class="v-cell"><div class="v-cell-text">wore it to a wedding.<br>nobody said anything.</div></div>
-    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_tshirt_03.png" alt="" loading="lazy"></div>
+    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/grey_tshirt_03_result.avif" alt="" loading="lazy"></div>
     <div class="v-cell"><div class="v-cell-text">landed the trick.<br>didn't even look back.</div></div>
-    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/sweatshirt_folded_01.png" alt="" loading="lazy"></div>
+    <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/sweatshirt_folded_01_result.avif" alt="" loading="lazy"></div>
     <div class="v-cell sp"><div class="v-cell-text">noted.</div></div>
     <div class="v-cell"><div class="v-cell-text">complete the look.<br>(or don't, whatever)</div></div>
   </div>
 </section>
 
 <div class="sline"></div>
+
+<!-- LIFESTYLE CAROUSEL 2 — between vibes and moments, taller -->
+<div class="section-carousel tall">
+  <div class="life-carousel">
+    <div class="life-carousel-track scroll-left gapped" style="--carousel-speed:55s">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/9.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/12.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/15.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/13.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/16.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/9.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/12.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/15.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/13.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/16.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
+    </div>
+  </div>
+</div>
 
 <!-- MOMENTS -->
 <section class="moments" id="moments">
@@ -464,14 +710,57 @@ img{display:block;max-width:100%;height:auto}
     <p class="moments-desc">dumb. weird. cool. you know it when you see it. prolly.</p>
   </div>
   <div class="moments-grid">
-    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_sweatshirt_posed_02.png" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 001</div><div class="mo-text">accidentally did a kickflip while eating a sandwich</div></div></div>
-    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/grey_camo_jacket_02.png" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 002</div><div class="mo-text">wore the hoodie to a job interview. got the job. quit the next day.</div></div></div>
-    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_crewneck_closeup_01.png" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 003</div><div class="mo-text">someone asked what the brand means. said "idk." they bought two.</div></div></div>
+    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/white_sweatshirt_posed_02_result.avif" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 001</div><div class="mo-text">accidentally did a kickflip while eating a sandwich</div></div></div>
+    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/grey_camo_jacket_02_result.avif" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 002</div><div class="mo-text">wore the hoodie to a job interview. got the job. quit the next day.</div></div></div>
+    <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_crewneck_closeup_01_result.avif" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 003</div><div class="mo-text">someone asked what the brand means. said "idk." they bought two.</div></div></div>
   </div>
 </section>
 
+<!-- LIFESTYLE CAROUSEL 3 — double row before CTA -->
+<div class="section-carousel" style="margin:0">
+  <div class="life-carousel">
+    <div class="life-carousel-track scroll-left gapped" style="--carousel-speed:35s;--carousel-h:180px">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/9.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/10.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/11.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/12.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/13.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/14.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/15.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/9.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/10.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/11.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/12.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/13.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/14.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/15.avif" alt="" loading="lazy">
+    </div>
+  </div>
+</div>
+<div class="section-carousel" style="margin:0 0 24px 0">
+  <div class="life-carousel">
+    <div class="life-carousel-track scroll-right gapped" style="--carousel-speed:38s;--carousel-h:180px">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
+    </div>
+  </div>
+</div>
+
 <!-- CTA -->
 <section class="cta" id="cta">
+  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/11.avif" alt="" loading="lazy"></div>
   <h2>
     <span class="line"><span>thatswassupps<span class="spot">.</span></span></span>
     <span class="line"><span class="dim">or whatever.</span></span>
@@ -485,10 +774,124 @@ img{display:block;max-width:100%;height:auto}
 
 <!-- CATEGORIES with real images -->
 <section class="cats">
-  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_sweatshirt_angle_01.png" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">clothing</div><div class="cat-cta">shop now →</div></div></div>
-  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/black_bucket_hat_cursive_01.png" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">accessories</div><div class="cat-cta">shop now →</div></div></div>
-  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/white_vans_01.png" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">whatever else</div><div class="cat-cta">coming eventually →</div></div></div>
+  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">clothing</div><div class="cat-cta">shop now →</div></div></div>
+  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/bucket_hat_solo_02_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">accessories</div><div class="cat-cta">shop now →</div></div></div>
+  <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/white_vans_01_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">whatever else</div><div class="cat-cta">coming eventually →</div></div></div>
 </section>
+
+<!-- PRODUCT DETAIL PAGE — BUCKET HAT -->
+<div class="pdp-overlay" id="pdpBucketHat">
+  <div class="pdp">
+
+    <!-- LEFT — product hero + slideshow -->
+    <div class="pdp-left">
+      <div class="pdp-slideshow" id="pdpSlideshow">
+        <div class="pdp-slide active"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_01_result.avif" alt=""></div>
+        <div class="pdp-slide"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_02_result.avif" alt=""></div>
+        <div class="pdp-slide"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_03_result.avif" alt=""></div>
+        <div class="pdp-slide"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_04_result.avif" alt=""></div>
+        <div class="pdp-slide"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_05_result.avif" alt=""></div>
+        <div class="pdp-slide"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_06_result.avif" alt=""></div>
+      </div>
+
+      <div class="pdp-product-stage">
+        
+      </div>
+
+      <div class="pdp-angles">
+        <div class="pdp-angle active"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/bucket_hat_solo_01_result.avif" alt=""></div>
+        <div class="pdp-angle"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/bucket_hat_solo_02_result.avif" alt=""></div>
+        <div class="pdp-angle"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/bucket_hat_solo_03_result.avif" alt=""></div>
+        <div class="pdp-angle"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_01_result.avif" alt=""></div>
+        <div class="pdp-angle"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/bucket_hat_people/bucket_hat_03_result.avif" alt=""></div>
+      </div>
+    </div>
+
+    <!-- RIGHT — product info -->
+    <div class="pdp-right">
+      <button class="pdp-close" id="pdpClose"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+
+      <div class="pdp-breadcrumb">stuff <span>→</span> accessories <span>→</span> bucket hat</div>
+
+      <h2 class="pdp-product-name">cursive bucket hat<span class="spot">.</span></h2>
+      <p class="pdp-product-tagline">protects from sun and eye contact. mostly eye contact.</p>
+
+      <div class="pdp-price">$40</div>
+      <div class="pdp-price-note">kinda wild, honestly.</div>
+
+      <div class="pdp-variants">
+        <div class="pdp-variants-label">color</div>
+        <div class="pdp-variant-options">
+          <div class="pdp-variant-opt active" data-color="black"><div class="swatch" style="background:#1a1a1a"></div></div>
+          <div class="pdp-variant-opt" data-color="white"><div class="swatch" style="background:#e8e5df"></div></div>
+        </div>
+      </div>
+
+      <div class="pdp-sizes">
+        <div class="pdp-variants-label">size</div>
+        <div class="pdp-size-options">
+          <div class="pdp-size-opt">s/m</div>
+          <div class="pdp-size-opt active">m/l</div>
+          <div class="pdp-size-opt">l/xl</div>
+        </div>
+      </div>
+
+      <button class="pdp-atc" data-shopify-id="SHOPIFY_ID_BUCKET_HAT_CURSIVE">add to cart</button>
+      <button class="pdp-secondary-btn">buy it now or whatever</button>
+
+      <div class="pdp-desc">
+        <div class="pdp-desc-title">about this hat or whatever</div>
+        <div class="pdp-desc-text">
+          it's a bucket hat with our cursive logo in gold embroidery. 
+          it goes on your head. blocks the sun. makes you look like you 
+          have somewhere to be even when you absolutely don't.<br><br>
+          100% cotton twill. embroidered logo. one size fits most heads. 
+          not all heads. but most.
+        </div>
+      </div>
+
+      <div class="pdp-reviews">
+        <div class="pdp-review">
+          <div class="pdp-review-text">"bought this for the beach. never went to the beach. still wear it every day."</div>
+          <div class="pdp-review-attr">— prolly fake</div>
+        </div>
+        <div class="pdp-review">
+          <div class="pdp-review-text">"my barber asked me to take it off. i said no. we're not friends anymore."</div>
+          <div class="pdp-review-attr">— definitely real</div>
+        </div>
+      </div>
+
+      <div class="pdp-details">
+        <div class="pdp-detail-row"><span class="pdp-detail-label">material</span><span class="pdp-detail-value">100% cotton twill</span></div>
+        <div class="pdp-detail-row"><span class="pdp-detail-label">logo</span><span class="pdp-detail-value">gold embroidery, cursive</span></div>
+        <div class="pdp-detail-row"><span class="pdp-detail-label">fit</span><span class="pdp-detail-value">one size (adjustable)</span></div>
+        <div class="pdp-detail-row"><span class="pdp-detail-label">care</span><span class="pdp-detail-value">spot clean. or don't. it's your hat.</span></div>
+        <div class="pdp-detail-row"><span class="pdp-detail-label">shipping</span><span class="pdp-detail-value">3-7 days. patience is a virtue or whatever.</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <div class="cart-drawer-title">your cart.</div>
+    <button class="cart-drawer-close" id="cartClose"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">nothing here yet. prolly for the best.</div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span class="cart-total-label">total</span>
+      <span class="cart-total-price" id="cartTotal">$0.00</span>
+    </div>
+    <button class="cart-checkout-btn" id="cartCheckoutBtn" disabled>checkout</button>
+    <div class="cart-note">you'll be redirected to our secure checkout. noted.</div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer class="footer">
@@ -548,12 +951,8 @@ img{display:block;max-width:100%;height:auto}
     // Section lines
     document.querySelectorAll('.sline').forEach(l=>{gsap.to(l,{scrollTrigger:{trigger:l,start:'top 88%',end:'top 70%',scrub:1},scaleX:1})});
 
-    // Products horizontal scroll
+    // Products — scroll setup handled dynamically after Shopify products load
     const track=document.getElementById('pt');
-    const cards=document.querySelectorAll('.pcard');
-    cards.forEach((c,i)=>{gsap.to(c,{opacity:1,y:0,duration:.5,delay:i*.05,ease:'power3.out',scrollTrigger:{trigger:'.products',start:'top 70%'}})});
-    const ts=track.scrollWidth-window.innerWidth+100;
-    gsap.to(track,{x:()=>-ts,ease:'none',scrollTrigger:{trigger:'#pp',start:'top top',end:()=>`+=${ts}`,pin:true,scrub:1,invalidateOnRefresh:true}});
 
     // Quotes
     document.querySelectorAll('.q-item').forEach((q,i)=>{gsap.to(q,{opacity:1,y:0,duration:.5,delay:i*.08,ease:'power3.out',scrollTrigger:{trigger:q,start:'top 85%'}})});
@@ -572,8 +971,436 @@ img{display:block;max-width:100%;height:auto}
     // Hero break parallax
     gsap.to('.hero-break img',{scrollTrigger:{trigger:'.hero-break',start:'top bottom',end:'bottom top',scrub:1},y:-60,scale:1.08});
 
+    // Section background parallax
+    document.querySelectorAll('.section-bg img').forEach(function(img){
+      gsap.to(img,{scrollTrigger:{trigger:img.closest('section'),start:'top bottom',end:'bottom top',scrub:1},y:-40,scale:1.05});
+    });
+
     ScrollTrigger.refresh();
   }
+
+  // ─── PRODUCT DETAIL PAGE ─────────────────
+  // ─── PDP Close Handler ─────────────────
+  (function() {
+    var pdpOverlay = document.getElementById('pdpBucketHat');
+    var pdpCloseBtn = document.getElementById('pdpClose');
+    if (!pdpOverlay) return;
+
+    function closePDP() {
+      pdpOverlay.classList.remove('active');
+      if (pdpOverlay._slideshowInterval) clearInterval(pdpOverlay._slideshowInterval);
+      setTimeout(function() { document.body.classList.remove('pdp-open'); }, 200);
+    }
+
+    if (pdpCloseBtn) pdpCloseBtn.addEventListener('click', closePDP);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && pdpOverlay.classList.contains('active')) closePDP();
+    });
+  })();
+
+
+  // ─── SHOPIFY BUY BUTTON SDK — DYNAMIC PRODUCTS + CART ─────────────
+  (function initShopify() {
+    var SHOPIFY_DOMAIN = 'c6fcm1-md.myshopify.com';
+    var STOREFRONT_TOKEN = 'e4f96f9d31f0687f3bc36c03b236756d';
+
+    var client = null;
+    var cart = [];
+    var shopifyCheckout = null;
+    var allProducts = [];
+
+    // ── Initialize SDK client ──
+    if (window.ShopifyBuy) {
+      client = ShopifyBuy.buildClient({
+        domain: SHOPIFY_DOMAIN,
+        storefrontAccessToken: STOREFRONT_TOKEN,
+      });
+      client.checkout.create().then(function(c) { shopifyCheckout = c; });
+    } else {
+      console.log('ShopifyBuy SDK not loaded');
+    }
+
+    // ── Fetch all products via SDK ──
+    async function fetchProducts() {
+      if (!client) return [];
+      try {
+        var products = await client.product.fetchAll(50);
+        return products;
+      } catch (err) {
+        console.log('SDK fetchAll error:', err);
+        return [];
+      }
+    }
+
+    // ── Badge logic ──
+    function getBadge(product) {
+      var type = (product.productType || '').toLowerCase();
+      var tags = product.tags || [];
+      for (var i = 0; i < tags.length; i++) {
+        if (tags[i].toLowerCase() === 'new') return 'new';
+      }
+      if (type.indexOf('hat') > -1 || type.indexOf('accessor') > -1) return 'accessory';
+      if (type.indexOf('jacket') > -1 || type.indexOf('outer') > -1) return 'outerwear';
+      if (type.indexOf('shoe') > -1 || type.indexOf('foot') > -1) return 'footwear';
+      return 'core';
+    }
+
+    // ── Build product card ──
+    function buildProductCard(product) {
+      var firstImage = product.images.length > 0 ? product.images[0].src : '';
+      var firstVariant = product.variants.length > 0 ? product.variants[0] : null;
+      var price = firstVariant ? parseFloat(firstVariant.price.amount || firstVariant.price) : 0;
+      var comparePrice = firstVariant && firstVariant.compareAtPrice ? parseFloat(firstVariant.compareAtPrice.amount || firstVariant.compareAtPrice) : 0;
+      var variantId = firstVariant ? firstVariant.id : '';
+      var variantTitle = (firstVariant && firstVariant.title !== 'Default Title') ? firstVariant.title : '';
+
+      if (!variantTitle && product.options && product.options.length > 0) {
+        variantTitle = product.options.map(function(o) { return o.values && o.values[0] ? (o.values[0].value || o.values[0]) : ''; }).join(' / ');
+      }
+
+      var badge = getBadge(product);
+      var card = document.createElement('div');
+      card.className = 'pcard';
+      card.dataset.handle = product.handle || '';
+
+      var priceHTML = '';
+      if (comparePrice > price) priceHTML = '<span style="text-decoration:line-through;color:var(--g600);margin-right:6px">$' + comparePrice.toFixed(0) + '</span>';
+      priceHTML += '$' + price.toFixed(0);
+
+      card.innerHTML = '<div class="pcard-img"><img src="' + firstImage + '" alt="' + product.title + '" loading="lazy"><div class="pcard-badge">' + badge + '</div></div>' +
+        '<div class="pcard-info"><div><div class="pcard-name">' + product.title.toLowerCase() + '</div><div class="pcard-variant">' + variantTitle.toLowerCase() + '</div></div><div class="pcard-price">' + priceHTML + '</div></div>' +
+        '<button class="pcard-atc">add to cart</button>';
+
+      // ATC click
+      card.querySelector('.pcard-atc').addEventListener('click', function(e) {
+        e.stopPropagation();
+        addToCart(product, firstVariant, this);
+      });
+
+      // Card click opens PDP
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('.pcard-atc')) return;
+        openDynamicPDP(product);
+      });
+
+      return card;
+    }
+
+    // ── Render products ──
+    async function renderProducts() {
+      var track = document.getElementById('pt');
+      var loading = document.getElementById('productsLoading');
+
+      try {
+        allProducts = await fetchProducts();
+
+        if (!allProducts.length) {
+          loading.querySelector('span').textContent = 'no products yet. stay tuned.';
+          return;
+        }
+
+        track.innerHTML = '';
+        allProducts.forEach(function(product) {
+          track.appendChild(buildProductCard(product));
+        });
+
+        // Make cards visible immediately
+        document.querySelectorAll('.pcard').forEach(function(c) {
+          c.style.opacity = '1';
+          c.style.transform = 'none';
+        });
+
+        // Kill any existing horizontal scroll triggers
+        ScrollTrigger.getAll().forEach(function(st) {
+          if (st.trigger === document.getElementById('pp')) st.kill();
+        });
+
+        // Wait for images to start loading and layout to settle
+        requestAnimationFrame(function() {
+          setTimeout(function() {
+            var totalWidth = track.scrollWidth - window.innerWidth + 100;
+            if (totalWidth > 0) {
+              gsap.set(track, { x: 0 });
+              gsap.to(track, {
+                x: -totalWidth,
+                ease: 'none',
+                scrollTrigger: {
+                  trigger: '#pp',
+                  start: 'top top',
+                  end: '+=' + totalWidth,
+                  scrub: 1,
+                  pin: true,
+                  invalidateOnRefresh: true
+                }
+              });
+            }
+            ScrollTrigger.refresh();
+          }, 500);
+        });
+      } catch (err) {
+        console.log('Failed to load products:', err);
+        if (loading) loading.querySelector('span').textContent = "couldn't load products. refresh maybe?";
+      }
+    }
+
+    // ── Dynamic PDP ──
+    function openDynamicPDP(product) {
+      var pdp = document.getElementById('pdpBucketHat');
+      if (!pdp) return;
+      var images = product.images || [];
+      var variants = product.variants || [];
+      var firstVariant = variants[0];
+      var price = firstVariant ? parseFloat(firstVariant.price.amount || firstVariant.price) : 0;
+
+      pdp.querySelector('.pdp-product-name').innerHTML = product.title.toLowerCase() + '<span class="spot">.</span>';
+      pdp.querySelector('.pdp-product-tagline').textContent = (product.description || '').substring(0, 100);
+      pdp.querySelector('.pdp-price').textContent = '$' + price.toFixed(0);
+      pdp.querySelector('.pdp-desc-text').innerHTML = product.descriptionHtml || product.description || 'no description yet. mysterious.';
+
+      var type = product.productType || 'stuff';
+      pdp.querySelector('.pdp-breadcrumb').innerHTML = 'stuff <span>\u2192</span> ' + type.toLowerCase() + ' <span>\u2192</span> ' + product.title.toLowerCase();
+
+      // Slideshow
+      var slideshow = pdp.querySelector('#pdpSlideshow');
+      slideshow.innerHTML = images.map(function(img, i) {
+        var src = img.src || img.url || '';
+        return '<div class="pdp-slide ' + (i === 0 ? 'active' : '') + '"><img src="' + src + '" alt=""></div>';
+      }).join('');
+
+      // Angles
+      var anglesEl = pdp.querySelector('.pdp-angles');
+      anglesEl.innerHTML = images.slice(0, 5).map(function(img, i) {
+        var src = img.src || img.url || '';
+        return '<div class="pdp-angle ' + (i === 0 ? 'active' : '') + '"><img src="' + src + '" alt=""></div>';
+      }).join('');
+      pdp.querySelectorAll('.pdp-angle').forEach(function(t) {
+        t.addEventListener('click', function() {
+          pdp.querySelectorAll('.pdp-angle').forEach(function(a) { a.classList.remove('active'); });
+          this.classList.add('active');
+          // Swap the main slideshow to show this image
+          var thumbSrc = this.querySelector('img').src;
+          if (pdp._slideshowInterval) clearInterval(pdp._slideshowInterval);
+          var allSlides = pdp.querySelectorAll('.pdp-slide');
+          allSlides.forEach(function(s) { s.classList.remove('active'); });
+          // Find matching slide or use first
+          var matched = false;
+          allSlides.forEach(function(s) {
+            var sImg = s.querySelector('img');
+            if (sImg && sImg.src === thumbSrc) { s.classList.add('active'); matched = true; }
+          });
+          if (!matched && allSlides[0]) {
+            allSlides[0].querySelector('img').src = thumbSrc;
+            allSlides[0].classList.add('active');
+          }
+        });
+      });
+
+      // Sizes
+      var sizesContainer = pdp.querySelector('.pdp-sizes');
+      var sizesEl = pdp.querySelector('.pdp-size-options');
+      var sizeOption = product.options ? product.options.find(function(o) { return o.name.toLowerCase() === 'size'; }) : null;
+      if (sizeOption && sizesEl) {
+        var vals = sizeOption.values.map(function(v) { return v.value || v; });
+        sizesEl.innerHTML = vals.map(function(v, i) {
+          return '<div class="pdp-size-opt ' + (i === 0 ? 'active' : '') + '">' + v.toLowerCase() + '</div>';
+        }).join('');
+        sizesContainer.style.display = '';
+        sizesEl.querySelectorAll('.pdp-size-opt').forEach(function(opt) {
+          opt.addEventListener('click', function() {
+            sizesEl.querySelectorAll('.pdp-size-opt').forEach(function(o) { o.classList.remove('active'); });
+            this.classList.add('active');
+            updatePDPVariant(pdp, product);
+          });
+        });
+      } else if (sizesContainer) { sizesContainer.style.display = 'none'; }
+
+      // Colors
+      var variantsContainer = pdp.querySelector('.pdp-variants');
+      var colorOption = product.options ? product.options.find(function(o) { return o.name.toLowerCase() === 'color' || o.name.toLowerCase() === 'colour'; }) : null;
+      if (colorOption && variantsContainer) {
+        var colorMap = { black: '#1a1a1a', white: '#e8e5df', grey: '#888', gray: '#888', red: '#c0392b', blue: '#2980b9', green: '#27ae60', navy: '#2c3e50', cream: '#f5f0e1', brown: '#8b5e3c' };
+        var cvals = colorOption.values.map(function(v) { return v.value || v; });
+        pdp.querySelector('.pdp-variant-options').innerHTML = cvals.map(function(v, i) {
+          var hex = colorMap[v.toLowerCase()] || '#666';
+          return '<div class="pdp-variant-opt ' + (i === 0 ? 'active' : '') + '" data-color="' + v.toLowerCase() + '"><div class="swatch" style="background:' + hex + '"></div></div>';
+        }).join('');
+        variantsContainer.style.display = '';
+        pdp.querySelectorAll('.pdp-variant-opt').forEach(function(opt) {
+          opt.addEventListener('click', function() {
+            pdp.querySelectorAll('.pdp-variant-opt').forEach(function(o) { o.classList.remove('active'); });
+            this.classList.add('active');
+            updatePDPVariant(pdp, product);
+          });
+        });
+      } else if (variantsContainer) { variantsContainer.style.display = 'none'; }
+
+      // ATC
+      var pdpAtc = pdp.querySelector('.pdp-atc');
+      pdpAtc.disabled = false;
+      pdpAtc.textContent = 'add to cart';
+      pdpAtc.onclick = function() {
+        var sv = getSelectedVariant(pdp, product) || firstVariant;
+        addToCart(product, sv, this);
+      };
+
+      // Details
+      var detailsEl = pdp.querySelector('.pdp-details');
+      if (detailsEl) {
+        detailsEl.innerHTML = '<div class="pdp-detail-row"><span class="pdp-detail-label">type</span><span class="pdp-detail-value">' + type.toLowerCase() + '</span></div>' +
+          '<div class="pdp-detail-row"><span class="pdp-detail-label">variants</span><span class="pdp-detail-value">' + variants.length + ' option' + (variants.length > 1 ? 's' : '') + '</span></div>' +
+          '<div class="pdp-detail-row"><span class="pdp-detail-label">shipping</span><span class="pdp-detail-value">3-7 days. patience is a virtue or whatever.</span></div>';
+      }
+
+      // Open
+      document.body.classList.add('pdp-open');
+      pdp.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      // Slideshow timer
+      if (pdp._slideshowInterval) clearInterval(pdp._slideshowInterval);
+      var slideIdx = 0;
+      var slides = pdp.querySelectorAll('.pdp-slide');
+      if (slides.length > 1) {
+        pdp._slideshowInterval = setInterval(function() {
+          slides[slideIdx].classList.remove('active');
+          slideIdx = (slideIdx + 1) % slides.length;
+          slides[slideIdx].classList.add('active');
+        }, 4000);
+      }
+    }
+
+    function getSelectedVariant(pdp, product) {
+      var selColorEl = pdp.querySelector('.pdp-variant-opt.active');
+      var selColor = selColorEl ? selColorEl.dataset.color : null;
+      var selSizeEl = pdp.querySelector('.pdp-size-opt.active');
+      var selSize = selSizeEl ? selSizeEl.textContent.trim().toLowerCase() : null;
+      for (var i = 0; i < product.variants.length; i++) {
+        var v = product.variants[i];
+        var opts = v.selectedOptions || [];
+        var colorMatch = !selColor || opts.some(function(o) { return (o.value || '').toLowerCase() === selColor; });
+        var sizeMatch = !selSize || opts.some(function(o) { return (o.value || '').toLowerCase() === selSize; });
+        if (colorMatch && sizeMatch) return v;
+      }
+      return null;
+    }
+
+    function updatePDPVariant(pdp, product) {
+      var v = getSelectedVariant(pdp, product);
+      if (v) {
+        var p = parseFloat(v.price.amount || v.price);
+        pdp.querySelector('.pdp-price').textContent = '$' + p.toFixed(0);
+        if (!v.available) {
+          pdp.querySelector('.pdp-atc').textContent = 'sold out';
+          pdp.querySelector('.pdp-atc').disabled = true;
+        } else {
+          pdp.querySelector('.pdp-atc').textContent = 'add to cart';
+          pdp.querySelector('.pdp-atc').disabled = false;
+        }
+      }
+    }
+
+    // ── Add to Cart ──
+    function addToCart(product, variant, btnEl) {
+      var name = product.title;
+      var vTitle = (variant && variant.title !== 'Default Title') ? variant.title : '';
+      var price = variant ? parseFloat(variant.price.amount || variant.price) : 0;
+      var img = product.images.length > 0 ? (product.images[0].src || '') : '';
+      var variantId = variant ? variant.id : '';
+      
+      console.log('Add to cart:', name, 'variant ID:', variantId);
+
+      var existing = cart.find(function(item) { return item.variantId === variantId; });
+      if (existing) { existing.qty += 1; }
+      else { cart.push({ name: name, variant: vTitle, price: price, img: img, variantId: variantId, qty: 1 }); }
+
+      if (btnEl) {
+        btnEl.textContent = 'added \u2713';
+        btnEl.classList.add('added');
+        setTimeout(function() { btnEl.textContent = 'add to cart'; btnEl.classList.remove('added'); }, 1500);
+      }
+      updateCartUI();
+      setTimeout(openCart, 300);
+    }
+
+    // ── Cart UI ──
+    var cartToggle = document.getElementById('cartToggle');
+    var cartOverlay = document.getElementById('cartOverlay');
+    var cartDrawer = document.getElementById('cartDrawer');
+    var cartClose = document.getElementById('cartClose');
+    var cartItemsEl = document.getElementById('cartItems');
+    var cartTotalEl = document.getElementById('cartTotal');
+    var cartCountEl = document.getElementById('cartCount');
+    var cartCheckoutBtn = document.getElementById('cartCheckoutBtn');
+
+    function openCart() { cartOverlay.classList.add('open'); cartDrawer.classList.add('open'); }
+    function closeCart() { cartOverlay.classList.remove('open'); cartDrawer.classList.remove('open'); }
+    if (cartToggle) cartToggle.addEventListener('click', openCart);
+    if (cartOverlay) cartOverlay.addEventListener('click', closeCart);
+    if (cartClose) cartClose.addEventListener('click', closeCart);
+
+    function updateCartUI() {
+      var totalItems = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+      var totalPrice = cart.reduce(function(s, i) { return s + (i.price * i.qty); }, 0);
+      cartCountEl.textContent = totalItems;
+      if (totalItems > 0) { cartCountEl.classList.add('show'); cartCheckoutBtn.disabled = false; }
+      else { cartCountEl.classList.remove('show'); cartCheckoutBtn.disabled = true; }
+      cartTotalEl.textContent = '$' + totalPrice.toFixed(2);
+      if (cart.length === 0) { cartItemsEl.innerHTML = '<div class="cart-empty">nothing here yet. prolly for the best.</div>'; return; }
+      cartItemsEl.innerHTML = cart.map(function(item, i) {
+        return '<div class="cart-item"><div class="cart-item-img">' + (item.img ? '<img src="' + item.img + '" alt="">' : '') + '</div><div class="cart-item-info"><div class="cart-item-name">' + item.name + '</div><div class="cart-item-variant">' + item.variant + '</div><div class="cart-item-price">$' + (item.price * item.qty).toFixed(2) + '</div><div class="cart-item-qty"><button onclick="window._cartQty(' + i + ',-1)">\u2212</button><span>' + item.qty + '</span><button onclick="window._cartQty(' + i + ',1)">+</button></div><div class="cart-item-remove" onclick="window._cartRemove(' + i + ')">remove</div></div></div>';
+      }).join('');
+    }
+    window._cartQty = function(i, d) { cart[i].qty += d; if (cart[i].qty <= 0) cart.splice(i, 1); updateCartUI(); };
+    window._cartRemove = function(i) { cart.splice(i, 1); updateCartUI(); };
+
+    // ── Checkout via SDK ──
+    if (cartCheckoutBtn) {
+      cartCheckoutBtn.addEventListener('click', async function() {
+        if (!client || cart.length === 0) return;
+        this.textContent = 'loading...';
+        this.disabled = true;
+        
+        try {
+          // Create fresh checkout
+          var checkout = await client.checkout.create();
+          
+          var lineItems = cart.map(function(item) {
+            return { variantId: item.variantId, quantity: item.qty };
+          }).filter(function(li) { return li.variantId; });
+          
+          if (lineItems.length > 0) {
+            checkout = await client.checkout.addLineItems(checkout.id, lineItems);
+            window.location.href = checkout.webUrl;
+            return;
+          }
+        } catch (err) {
+          console.log('SDK checkout error:', err);
+        }
+
+        // Fallback — build a /cart URL with variant IDs
+        try {
+          var cartItems = cart.filter(function(item) { return item.variantId; }).map(function(item) {
+            // Extract numeric ID from gid://shopify/ProductVariant/XXXXX
+            var numId = item.variantId.split('/').pop();
+            return numId + ':' + item.qty;
+          });
+          if (cartItems.length > 0) {
+            window.location.href = 'https://' + SHOPIFY_DOMAIN + '/cart/' + cartItems.join(',');
+            return;
+          }
+        } catch (err2) {
+          console.log('Fallback cart URL error:', err2);
+        }
+        
+        // Last resort
+        window.location.href = 'https://' + SHOPIFY_DOMAIN;
+      });
+    }
+
+    // ── Kick it off ──
+    renderProducts();
+  })();
+
 })();
 </script>
 </body>
