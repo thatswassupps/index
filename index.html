@@ -174,10 +174,10 @@ img{display:block;max-width:100%;height:auto}
 .hero-break-text p{font-family:var(--font-mono);font-size:10px;color:var(--g400);margin-top:12px;font-style:italic}
 
 /* ══ VIBES GRID ══ */
-.vibes{padding:100px 48px;background:var(--g900)}
-.vibes h2{font-family:var(--font-logo);font-weight:600;font-size:clamp(24px,3.5vw,44px);letter-spacing:-.02em;text-transform:lowercase;color:var(--g200);margin-bottom:48px}
+.vibes{padding:100px 48px;background:var(--g900);position:relative;overflow:hidden}
+.vibes h2{font-family:var(--font-logo);font-weight:600;font-size:clamp(24px,3.5vw,44px);letter-spacing:-.02em;text-transform:lowercase;color:var(--g200);margin-bottom:48px;position:relative;z-index:1}
 .vibes h2 .p{color:var(--spot)}
-.vibes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+.vibes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;position:relative;z-index:1}
 .v-cell{aspect-ratio:1;background:var(--g800);display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;opacity:0;transform:scale(.95);transition:background .4s;cursor:default;overflow:hidden;position:relative}
 .v-cell:hover{background:var(--black)}
 .v-cell-text{font-family:var(--font-mono);font-size:clamp(10px,1.1vw,14px);color:var(--g400);line-height:1.5;transition:color .4s;position:relative;z-index:1}
@@ -193,12 +193,12 @@ img{display:block;max-width:100%;height:auto}
 @media(max-width:768px){.vibes{padding:60px 20px}.vibes-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ══ MOMENTS ══ */
-.moments{padding:120px 48px;background:var(--black);overflow:hidden}
-.moments-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;gap:40px}
+.moments{padding:120px 48px;background:var(--black);overflow:hidden;position:relative}
+.moments-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:60px;gap:40px;position:relative;z-index:1}
 .moments-title{font-family:var(--font-logo);font-weight:800;font-size:clamp(32px,5vw,64px);letter-spacing:-.03em;text-transform:lowercase;line-height:.95}
 .moments-title .spot{color:var(--spot)}
 .moments-desc{font-family:var(--font-mono);font-size:10px;color:var(--g600);max-width:280px;line-height:1.6;text-align:right;font-style:italic}
-.moments-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.moments-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;position:relative;z-index:1}
 .mo-card{position:relative;aspect-ratio:3/4;background:var(--g900);overflow:hidden;border:1px solid rgba(255,255,255,.03);opacity:0;transform:perspective(600px) translateY(60px) rotateX(5deg);transform-origin:center bottom;cursor:pointer;transition:transform .5s var(--ease-expo),border-color .4s}
 .mo-card:hover{transform:perspective(600px) translateY(-2px) rotateX(0deg)!important;border-color:rgba(255,255,255,.06)}
 .mo-card img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease-expo)}
@@ -226,8 +226,8 @@ img{display:block;max-width:100%;height:auto}
 .btn-g:hover{border-color:rgba(255,255,255,.3)}
 
 /* ══ CATEGORIES ══ */
-.cats{display:grid;grid-template-columns:repeat(3,1fr)}
-.cat-card{position:relative;overflow:hidden;background:var(--g900);display:flex;align-items:flex-end;padding:32px;min-height:360px;cursor:pointer;transition:background .4s}
+.cats{display:grid;grid-template-columns:repeat(3,1fr);position:relative;overflow:hidden}
+.cat-card{position:relative;overflow:hidden;background:var(--g900);display:flex;align-items:flex-end;padding:32px;min-height:360px;cursor:pointer;transition:background .4s;z-index:1}
 .cat-card:nth-child(2){background:var(--g800)}
 .cat-card:hover{background:var(--true-black)}
 .cat-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;transition:opacity .4s,transform .6s var(--ease-expo)}
@@ -265,17 +265,17 @@ img{display:block;max-width:100%;height:auto}
 
 /* ══ LIFESTYLE IMAGE CAROUSELS ══ */
 .life-carousel{overflow:hidden;position:relative;width:100%}
-.life-carousel-track{display:flex;width:max-content}
+.life-carousel-track{display:flex;width:max-content;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .life-carousel-track.scroll-left{animation:lifeScrollL var(--carousel-speed,40s) linear infinite}
 .life-carousel-track.scroll-right{animation:lifeScrollR var(--carousel-speed,40s) linear infinite}
-@keyframes lifeScrollL{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-@keyframes lifeScrollR{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+@keyframes lifeScrollL{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
+@keyframes lifeScrollR{0%{transform:translate3d(-50%,0,0)}100%{transform:translate3d(0,0,0)}}
 .life-carousel-track img{height:var(--carousel-h,280px);width:auto;object-fit:cover;flex-shrink:0;filter:brightness(.7) saturate(.4);transition:filter .6s ease}
 .life-carousel-track img:hover{filter:brightness(.9) saturate(.9)}
 
-/* Hero lifestyle strip — behind the title */
-.hero-life-strip{position:absolute;bottom:12%;left:0;right:0;z-index:1;opacity:.35;overflow:hidden}
-.hero-life-strip .life-carousel-track img{height:clamp(120px,18vw,220px)}
+/* Hero lifestyle strip — NOT see-through, just dimmed */
+.hero-life-strip{position:absolute;bottom:12%;left:0;right:0;z-index:1;overflow:hidden}
+.hero-life-strip .life-carousel-track img{height:clamp(120px,18vw,220px);filter:brightness(.45) saturate(.3);opacity:1}
 
 /* Section carousel — between sections */
 .section-carousel{padding:0;margin:24px 0}
@@ -323,26 +323,28 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 .pdp-overlay.active .pdp-left{transform:translateX(0);opacity:1}
 
 /* Right panel slides in from right */
-.pdp-right{padding:80px 48px 48px;display:flex;flex-direction:column;justify-content:center;background:var(--g900);position:relative;overflow-y:auto;
+.pdp-right{padding:0;display:flex;flex-direction:column;background:var(--g900);position:relative;overflow:hidden;
   transform:translateX(100%);opacity:0;transition:transform .8s cubic-bezier(.16,1,.3,1) .3s,opacity .6s ease .3s}
 .pdp-overlay.active .pdp-right{transform:translateX(0);opacity:1}
+.pdp-right-scroll{flex:1;overflow-y:auto;padding:80px 48px 24px}
+.pdp-right-sticky{padding:16px 48px 24px;border-top:1px solid rgba(255,255,255,.04);background:var(--g900);flex-shrink:0}
 
 /* Stagger the right panel content */
-.pdp-right>*{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s var(--ease-expo)}
-.pdp-overlay.active .pdp-right>*{opacity:1;transform:translateY(0)}
-.pdp-overlay.active .pdp-right>*:nth-child(1){transition-delay:.45s}
-.pdp-overlay.active .pdp-right>*:nth-child(2){transition-delay:.5s}
-.pdp-overlay.active .pdp-right>*:nth-child(3){transition-delay:.55s}
-.pdp-overlay.active .pdp-right>*:nth-child(4){transition-delay:.6s}
-.pdp-overlay.active .pdp-right>*:nth-child(5){transition-delay:.65s}
-.pdp-overlay.active .pdp-right>*:nth-child(6){transition-delay:.7s}
-.pdp-overlay.active .pdp-right>*:nth-child(7){transition-delay:.75s}
-.pdp-overlay.active .pdp-right>*:nth-child(8){transition-delay:.8s}
-.pdp-overlay.active .pdp-right>*:nth-child(9){transition-delay:.85s}
-.pdp-overlay.active .pdp-right>*:nth-child(10){transition-delay:.9s}
-.pdp-overlay.active .pdp-right>*:nth-child(11){transition-delay:.95s}
-.pdp-overlay.active .pdp-right>*:nth-child(12){transition-delay:1s}
-.pdp-overlay.active .pdp-right>*:nth-child(13){transition-delay:1.05s}
+.pdp-right-scroll>*{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s var(--ease-expo)}
+.pdp-overlay.active .pdp-right-scroll>*{opacity:1;transform:translateY(0)}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(1){transition-delay:.45s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(2){transition-delay:.5s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(3){transition-delay:.55s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(4){transition-delay:.6s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(5){transition-delay:.65s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(6){transition-delay:.7s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(7){transition-delay:.75s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(8){transition-delay:.8s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(9){transition-delay:.85s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(10){transition-delay:.9s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(11){transition-delay:.95s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(12){transition-delay:1s}
+.pdp-overlay.active .pdp-right-scroll>*:nth-child(13){transition-delay:1.05s}
 
 .pdp-product-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2}
 .pdp-product-stage canvas{width:100%!important;height:100%!important}
@@ -426,7 +428,8 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 @media(max-width:768px){
   .pdp{grid-template-columns:1fr;grid-template-rows:50vh auto}
   .pdp-left{position:relative;height:50vh}
-  .pdp-right{padding:32px 20px}
+  .pdp-right-scroll{padding:32px 20px 16px}
+  .pdp-right-sticky{padding:12px 20px 20px}
   .pdp-angles{flex-direction:row;right:auto;bottom:12px;top:auto;left:50%;transform:translateX(-50%)}
 }
 
@@ -606,7 +609,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- CINEMATIC BREAK — big product hero image -->
 <section class="hero-break">
-  <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="thatswassupps lifestyle" loading="lazy">
+  <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="thatswassupps unboxing" loading="lazy">
   <div class="hero-break-overlay"></div>
   <div class="hero-break-text">
     <h3>the unboxing experience<span class="spot">.</span></h3>
@@ -664,6 +667,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- VIBES GRID — with real product images mixed in -->
 <section class="vibes" id="vibes">
+  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/sweatshirt_folded_01_result.avif" alt="" loading="lazy"></div>
   <h2>whatever this is<span class="p">.</span></h2>
   <div class="vibes-grid">
     <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"></div>
@@ -705,6 +709,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- MOMENTS -->
 <section class="moments" id="moments">
+  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="" loading="lazy"></div>
   <div class="moments-header">
     <h2 class="moments-title">thatswassupps<span class="spot">.</span> moments</h2>
     <p class="moments-desc">dumb. weird. cool. you know it when you see it. prolly.</p>
@@ -716,8 +721,8 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
   </div>
 </section>
 
-<!-- LIFESTYLE CAROUSEL 3 — double row before CTA -->
-<div class="section-carousel" style="margin:0">
+<!-- LIFESTYLE CAROUSEL 3 — before CTA -->
+<div class="section-carousel" style="margin:24px 0">
   <div class="life-carousel">
     <div class="life-carousel-track scroll-left gapped" style="--carousel-speed:35s;--carousel-h:180px">
       <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/9.avif" alt="" loading="lazy">
@@ -737,25 +742,6 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
     </div>
   </div>
 </div>
-<div class="section-carousel" style="margin:0 0 24px 0">
-  <div class="life-carousel">
-    <div class="life-carousel-track scroll-right gapped" style="--carousel-speed:38s;--carousel-h:180px">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
-    </div>
-  </div>
 </div>
 
 <!-- CTA -->
@@ -768,12 +754,13 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
   <p class="cta-sub" id="csub">the most overhyped gear in streetwear culture. you're welcome.</p>
   <div class="cta-btns" id="cbtns">
     <button class="btn-w wave-btn"><span class="bi"><span class="wave-text"><span class="wave-top"><span>f</span><span>i</span><span>n</span><span>e</span><span>,</span><span> </span><span>s</span><span>h</span><span>o</span><span>w</span><span> </span><span>m</span><span>e</span></span><span class="wave-bot"><span>f</span><span>i</span><span>n</span><span>e</span><span>,</span><span> </span><span>s</span><span>h</span><span>o</span><span>w</span><span> </span><span>m</span><span>e</span></span></span></span></button>
-    <button class="btn-g wave-btn"><span class="wave-text"><span class="wave-top"><span>f</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span> </span><span>u</span><span>s</span><span> </span><span>i</span><span> </span><span>g</span><span>u</span><span>e</span></span><span class="wave-bot"><span>f</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span> </span><span>u</span><span>s</span><span> </span><span>i</span><span> </span><span>g</span><span>u</span><span>e</span></span></span></button>
+    <button class="btn-g wave-btn"><span class="wave-text"><span class="wave-top"><span>f</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span> </span><span>u</span><span>s</span><span> </span><span>i</span><span> </span><span>g</span><span>u</span><span>e</span><span>s</span><span>s</span></span><span class="wave-bot"><span>f</span><span>o</span><span>l</span><span>l</span><span>o</span><span>w</span><span> </span><span>u</span><span>s</span><span> </span><span>i</span><span> </span><span>g</span><span>u</span><span>e</span><span>s</span><span>s</span></span></span></button>
   </div>
 </section>
 
 <!-- CATEGORIES with real images -->
 <section class="cats">
+  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="" loading="lazy"></div>
   <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">clothing</div><div class="cat-cta">shop now →</div></div></div>
   <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/bucket_hat_solo_02_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">accessories</div><div class="cat-cta">shop now →</div></div></div>
   <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/white_vans_01_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">whatever else</div><div class="cat-cta">coming eventually →</div></div></div>
@@ -811,62 +798,66 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
     <div class="pdp-right">
       <button class="pdp-close" id="pdpClose"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
 
-      <div class="pdp-breadcrumb">stuff <span>→</span> accessories <span>→</span> bucket hat</div>
+      <div class="pdp-right-scroll">
+        <div class="pdp-breadcrumb">stuff <span>→</span> accessories <span>→</span> bucket hat</div>
 
-      <h2 class="pdp-product-name">cursive bucket hat<span class="spot">.</span></h2>
-      <p class="pdp-product-tagline">protects from sun and eye contact. mostly eye contact.</p>
+        <h2 class="pdp-product-name">cursive bucket hat<span class="spot">.</span></h2>
+        <p class="pdp-product-tagline">protects from sun and eye contact. mostly eye contact.</p>
 
-      <div class="pdp-price">$40</div>
-      <div class="pdp-price-note">kinda wild, honestly.</div>
+        <div class="pdp-price">$40</div>
+        <div class="pdp-price-note">kinda wild, honestly.</div>
 
-      <div class="pdp-variants">
-        <div class="pdp-variants-label">color</div>
-        <div class="pdp-variant-options">
-          <div class="pdp-variant-opt active" data-color="black"><div class="swatch" style="background:#1a1a1a"></div></div>
-          <div class="pdp-variant-opt" data-color="white"><div class="swatch" style="background:#e8e5df"></div></div>
+        <div class="pdp-variants">
+          <div class="pdp-variants-label">color</div>
+          <div class="pdp-variant-options">
+            <div class="pdp-variant-opt active" data-color="black"><div class="swatch" style="background:#1a1a1a"></div></div>
+            <div class="pdp-variant-opt" data-color="white"><div class="swatch" style="background:#e8e5df"></div></div>
+          </div>
+        </div>
+
+        <div class="pdp-sizes">
+          <div class="pdp-variants-label">size</div>
+          <div class="pdp-size-options">
+            <div class="pdp-size-opt">s/m</div>
+            <div class="pdp-size-opt active">m/l</div>
+            <div class="pdp-size-opt">l/xl</div>
+          </div>
+        </div>
+
+        <div class="pdp-desc">
+          <div class="pdp-desc-title">about this hat or whatever</div>
+          <div class="pdp-desc-text">
+            it's a bucket hat with our cursive logo in gold embroidery. 
+            it goes on your head. blocks the sun. makes you look like you 
+            have somewhere to be even when you absolutely don't.<br><br>
+            100% cotton twill. embroidered logo. one size fits most heads. 
+            not all heads. but most.
+          </div>
+        </div>
+
+        <div class="pdp-reviews">
+          <div class="pdp-review">
+            <div class="pdp-review-text">"bought this for the beach. never went to the beach. still wear it every day."</div>
+            <div class="pdp-review-attr">— prolly fake</div>
+          </div>
+          <div class="pdp-review">
+            <div class="pdp-review-text">"my barber asked me to take it off. i said no. we're not friends anymore."</div>
+            <div class="pdp-review-attr">— definitely real</div>
+          </div>
+        </div>
+
+        <div class="pdp-details">
+          <div class="pdp-detail-row"><span class="pdp-detail-label">material</span><span class="pdp-detail-value">100% cotton twill</span></div>
+          <div class="pdp-detail-row"><span class="pdp-detail-label">logo</span><span class="pdp-detail-value">gold embroidery, cursive</span></div>
+          <div class="pdp-detail-row"><span class="pdp-detail-label">fit</span><span class="pdp-detail-value">one size (adjustable)</span></div>
+          <div class="pdp-detail-row"><span class="pdp-detail-label">care</span><span class="pdp-detail-value">spot clean. or don't. it's your hat.</span></div>
+          <div class="pdp-detail-row"><span class="pdp-detail-label">shipping</span><span class="pdp-detail-value">3-7 days. patience is a virtue or whatever.</span></div>
         </div>
       </div>
 
-      <div class="pdp-sizes">
-        <div class="pdp-variants-label">size</div>
-        <div class="pdp-size-options">
-          <div class="pdp-size-opt">s/m</div>
-          <div class="pdp-size-opt active">m/l</div>
-          <div class="pdp-size-opt">l/xl</div>
-        </div>
-      </div>
-
-      <button class="pdp-atc" data-shopify-id="SHOPIFY_ID_BUCKET_HAT_CURSIVE">add to cart</button>
-      <button class="pdp-secondary-btn">buy it now or whatever</button>
-
-      <div class="pdp-desc">
-        <div class="pdp-desc-title">about this hat or whatever</div>
-        <div class="pdp-desc-text">
-          it's a bucket hat with our cursive logo in gold embroidery. 
-          it goes on your head. blocks the sun. makes you look like you 
-          have somewhere to be even when you absolutely don't.<br><br>
-          100% cotton twill. embroidered logo. one size fits most heads. 
-          not all heads. but most.
-        </div>
-      </div>
-
-      <div class="pdp-reviews">
-        <div class="pdp-review">
-          <div class="pdp-review-text">"bought this for the beach. never went to the beach. still wear it every day."</div>
-          <div class="pdp-review-attr">— prolly fake</div>
-        </div>
-        <div class="pdp-review">
-          <div class="pdp-review-text">"my barber asked me to take it off. i said no. we're not friends anymore."</div>
-          <div class="pdp-review-attr">— definitely real</div>
-        </div>
-      </div>
-
-      <div class="pdp-details">
-        <div class="pdp-detail-row"><span class="pdp-detail-label">material</span><span class="pdp-detail-value">100% cotton twill</span></div>
-        <div class="pdp-detail-row"><span class="pdp-detail-label">logo</span><span class="pdp-detail-value">gold embroidery, cursive</span></div>
-        <div class="pdp-detail-row"><span class="pdp-detail-label">fit</span><span class="pdp-detail-value">one size (adjustable)</span></div>
-        <div class="pdp-detail-row"><span class="pdp-detail-label">care</span><span class="pdp-detail-value">spot clean. or don't. it's your hat.</span></div>
-        <div class="pdp-detail-row"><span class="pdp-detail-label">shipping</span><span class="pdp-detail-value">3-7 days. patience is a virtue or whatever.</span></div>
+      <div class="pdp-right-sticky">
+        <button class="pdp-atc" data-shopify-id="SHOPIFY_ID_BUCKET_HAT_CURSIVE">add to cart</button>
+        <button class="pdp-secondary-btn">buy it now or whatever</button>
       </div>
 
     </div>
