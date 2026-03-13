@@ -156,8 +156,8 @@ img{display:block;max-width:100%;height:auto}
 .marquee-trk span.dm{color:rgba(255,255,255,.08)}
 
 /* ══ QUOTES ══ */
-.quotes{padding:100px 48px;background:var(--black)}
-.quotes-grid{max-width:1000px;margin:0 auto;display:flex;flex-direction:column}
+.quotes{padding:100px 48px;background:var(--black);position:relative;overflow:hidden}
+.quotes-grid{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;position:relative;z-index:2}
 .q-item{padding:28px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;align-items:baseline;opacity:0;transform:translateY(20px)}
 .q-item:first-child{border-top:1px solid rgba(255,255,255,.04)}
 .q-text{font-family:var(--font-display);font-weight:400;font-style:italic;font-size:clamp(16px,2.2vw,26px);letter-spacing:-.01em;color:var(--g200);max-width:75%;line-height:1.4}
@@ -166,7 +166,6 @@ img{display:block;max-width:100%;height:auto}
 
 /* ══ FEATURED IMAGE BREAK — big cinematic product shot ══ */
 .hero-break{position:relative;height:80vh;overflow:hidden;background:var(--true-black)}
-.hero-break img{width:100%;height:100%;object-fit:cover;opacity:.8}
 .hero-break-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--true-black),transparent 40%,transparent 60%,var(--true-black))}
 .hero-break-text{position:absolute;bottom:60px;left:48px;z-index:2}
 .hero-break-text h3{font-family:var(--font-logo);font-weight:800;font-size:clamp(24px,4vw,56px);letter-spacing:-.03em;text-transform:lowercase;color:var(--pure-white);line-height:.95}
@@ -211,13 +210,13 @@ img{display:block;max-width:100%;height:auto}
 
 /* ══ CTA ══ */
 .cta{position:relative;min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 40px;background:var(--true-black);overflow:hidden}
-.cta h2{font-family:var(--font-logo);font-weight:700;font-size:clamp(36px,7vw,100px);letter-spacing:-.04em;line-height:.95;text-transform:lowercase;text-align:center}
+.cta h2{font-family:var(--font-logo);font-weight:700;font-size:clamp(36px,7vw,100px);letter-spacing:-.04em;line-height:.95;text-transform:lowercase;text-align:center;position:relative;z-index:2}
 .cta h2 .line{display:block;overflow:hidden}
 .cta h2 .line span{display:inline-block;transform:translateY(110%)}
 .cta h2 .spot{color:var(--spot)}
 .cta h2 .dim{color:var(--g600)}
-.cta-sub{margin-top:24px;font-family:var(--font-mono);font-size:10px;color:var(--g600);font-style:italic;opacity:0}
-.cta-btns{margin-top:48px;display:flex;gap:12px;opacity:0;transform:translateY(20px)}
+.cta-sub{margin-top:24px;font-family:var(--font-mono);font-size:10px;color:var(--g600);font-style:italic;opacity:0;position:relative;z-index:2}
+.cta-btns{margin-top:48px;display:flex;gap:12px;opacity:0;transform:translateY(20px);position:relative;z-index:2}
 .btn-w{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:lowercase;padding:14px 28px;background:var(--pure-white);color:var(--true-black);position:relative;overflow:hidden;transition:all .3s var(--ease-expo)}
 .btn-w::after{content:'';position:absolute;inset:0;background:var(--spot);transform:translateY(101%);transition:transform .4s var(--ease-expo)}
 .btn-w:hover::after{transform:translateY(0)}
@@ -252,16 +251,25 @@ img{display:block;max-width:100%;height:auto}
 .footer-bottom span{font-family:var(--font-mono);font-size:8px;color:var(--g600)}
 @media(max-width:768px){.footer{padding:32px 20px}.footer-inner{grid-template-columns:1fr 1fr}.footer-bottom{flex-direction:column;gap:6px}}
 
-/* ══ SECTION BACKGROUND IMAGES ══ */
+/* ══ SECTION BACKGROUND SLIDESHOWS ══ */
 .section-bg{position:absolute;inset:0;z-index:0;overflow:hidden}
-.section-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.12) saturate(.3);transition:filter 1.5s ease}
-.section-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,var(--true-black) 0%,transparent 15%,transparent 85%,var(--true-black) 100%)}
+.section-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.12) saturate(.3);opacity:0;transition:opacity 1.5s ease}
+.section-bg img.active{opacity:1}
+.section-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,var(--true-black) 0%,transparent 15%,transparent 85%,var(--true-black) 100%);z-index:1}
+
+/* Hero bg slideshow — dimmer */
+.hero .section-bg img{filter:brightness(.08) saturate(.2)}
 
 /* Quotes bg slightly brighter */
 .quotes .section-bg img{filter:brightness(.1) saturate(.25)}
 /* CTA bg with vignette */
 .cta .section-bg::after{background:radial-gradient(ellipse at center,transparent 30%,var(--true-black) 75%)}
 .cta .section-bg img{filter:brightness(.08) saturate(.2)}
+
+/* Hero break slideshow */
+.hero-break .section-bg{z-index:0}
+.hero-break .section-bg img{filter:brightness(.7) saturate(.5)}
+.hero-break .section-bg::after{background:linear-gradient(to top,var(--true-black),transparent 40%,transparent 60%,var(--true-black))}
 
 /* ══ LIFESTYLE IMAGE CAROUSELS ══ */
 .life-carousel{overflow:hidden;position:relative;width:100%}
@@ -275,7 +283,8 @@ img{display:block;max-width:100%;height:auto}
 
 /* Hero lifestyle strip — NOT see-through, just dimmed */
 .hero-life-strip{position:absolute;bottom:12%;left:0;right:0;z-index:1;overflow:hidden}
-.hero-life-strip .life-carousel-track img{height:clamp(120px,18vw,220px);filter:brightness(.45) saturate(.3);opacity:1}
+.hero-life-strip .life-carousel-track img{height:clamp(120px,18vw,220px);filter:brightness(.45) saturate(.3);opacity:1;transition:filter .6s ease}
+.hero-life-strip .life-carousel-track img:hover{filter:brightness(.85) saturate(.85)}
 
 /* Section carousel — between sections */
 .section-carousel{padding:0;margin:24px 0}
@@ -516,14 +525,14 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <div class="loader" id="loader">
   <div class="loader-logo"><span class="loader-logo-inner">thatswassupps<span class="p">.</span></span></div>
   <div class="loader-bar"><div class="loader-bar-fill"></div></div>
-  <div class="loader-tag">mmk.</div>
+  <div class="loader-tag">the most overhyped streetwear brand.</div>
 </div>
 <div class="cdot" id="cd"></div>
 <div class="cring" id="cr"></div>
 
 <nav class="nav">
   <a href="#" class="nav-logo">thatswassupps.</a>
-  <ul class="nav-center"><li><a href="#products" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span><span class="wave-bot"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span></span></a></li><li><a href="#moments" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span><span class="wave-bot"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span></span></a></li><li><a href="#vibes" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>w</span><span>h</span><span>a</span><span>t</span><span>e</span><span>v</span><span>e</span><span>r</span></span><span class="wave-bot"><span>w</span><span>h</span><span>a</span><span>t</span><span>e</span><span>v</span><span>e</span><span>r</span></span></span></a></li></ul>
+  <ul class="nav-center"><li><a href="#products" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span><span class="wave-bot"><span>s</span><span>t</span><span>u</span><span>f</span><span>f</span></span></span></a></li><li><a href="#moments" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span><span class="wave-bot"><span>m</span><span>o</span><span>m</span><span>e</span><span>n</span><span>t</span><span>s</span></span></span></a></li><li><a href="#vibes" class="wave-btn"><span class="wave-text"><span class="wave-top"><span>c</span><span>o</span><span>m</span><span>m</span><span>u</span><span>n</span><span>i</span><span>t</span><span>y</span></span><span class="wave-bot"><span>c</span><span>o</span><span>m</span><span>m</span><span>u</span><span>n</span><span>i</span><span>t</span><span>y</span></span></span></a></li></ul>
   <div class="nav-right">
     <button class="store-btn wave-btn" id="cartToggle" style="position:relative"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="wave-text"><span class="wave-top"><span>c</span><span>a</span><span>r</span><span>t</span></span><span class="wave-bot"><span>c</span><span>a</span><span>r</span><span>t</span></span></span><span class="cart-count" id="cartCount">0</span></button>
     <button class="menu-btn"><span></span></button>
@@ -532,11 +541,16 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- HERO -->
 <section class="hero" id="hero">
+  <div class="section-bg" data-slideshow="hero">
+    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/1.avif" class="active" alt="" loading="lazy">
+    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/2.avif" alt="" loading="lazy">
+    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/3.avif" alt="" loading="lazy">
+  </div>
   <div class="hero-bg-marquee top"><div class="hero-bg-marquee-inner"><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span></div></div>
   <div class="hero-bg-marquee bottom"><div class="hero-bg-marquee-inner"><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span><span>thatswassupps.</span></div></div>
   <div class="hero-content" id="hc">
     <h1 class="hero-title">thatswassupps<span class="p">.</span></h1>
-    <p class="hero-sub" id="hs">mmk.</p>
+    <p class="hero-sub" id="hs">the most overhyped streetwear brand.</p>
   </div>
   <!-- Hero lifestyle strip -->
   <div class="hero-life-strip">
@@ -567,7 +581,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- MANIFESTO -->
 <section class="manifesto" id="manifesto">
-  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="" loading="lazy"></div>
+  <div class="section-bg" data-slideshow="manifesto"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/4.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/5.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/6.avif" alt="" loading="lazy"></div>
   <div class="manifesto-bg-text l1"><div class="manifesto-bg-text-inner" id="mb1"><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span><span>prolly not.</span></div></div>
   <div class="manifesto-bg-text l2"><div class="manifesto-bg-text-inner" id="mb2"><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span><span>if you say so.</span></div></div>
   <div class="manifesto-content">
@@ -575,7 +589,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
     <div class="m-line muted"><span class="w">who know</span></div>
     <div class="m-line emph"><span class="w wave-btn" style="cursor:default"><span class="wave-text" style="height:1.35em;line-height:1.35"><span class="wave-top"><span>w</span><span>a</span><span>s</span><span>s</span><span>u</span><span>p</span><span>p</span><span>s</span><span>.</span></span><span class="wave-bot"><span>w</span><span>a</span><span>s</span><span>s</span><span>u</span><span>p</span><span>p</span><span>s</span><span>.</span></span></span></span></div>
     <div class="m-div" id="md"></div>
-    <div class="m-tag" id="mt">that's the whole brand. noted.</div>
+    <div class="m-tag" id="mt">that's it.</div>
   </div>
 </section>
 
@@ -585,8 +599,8 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <section class="products" id="products">
   <div class="products-header">
     <div>
-      <div class="products-label">the stuff or whatever</div>
-      <h2 class="products-title">THE<br><span class="outline">DROP</span><span style="color:var(--spot)">.</span></h2>
+      
+      <h2 class="products-title">THE<br><span class="outline">LINEUP</span><span style="color:var(--spot)">.</span></h2>
     </div>
     <div class="products-cta-area">
       <p>prepare to be absolutely underwhelmed.</p>
@@ -609,11 +623,15 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- CINEMATIC BREAK — big product hero image -->
 <section class="hero-break">
-  <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="thatswassupps unboxing" loading="lazy">
+  <div class="section-bg" data-slideshow="herobreak">
+    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/6.avif" class="active" alt="" loading="lazy">
+    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/9.avif" alt="" loading="lazy">
+    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/15.avif" alt="" loading="lazy">
+  </div>
   <div class="hero-break-overlay"></div>
   <div class="hero-break-text">
-    <h3>the unboxing experience<span class="spot">.</span></h3>
-    <p>didn't expect to cry while unboxing it. i did.</p>
+    <h3>the unbagging experience<span class="spot">.</span></h3>
+    <p>didn't expect to cry unbagging it. i did.</p>
   </div>
 </section>
 
@@ -646,19 +664,17 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <!-- MARQUEE -->
 <section class="marquee-sec">
   <div class="marquee-row"><div class="marquee-trk left"><span class="ol">thatswassupps.</span><span class="fl">thatswassupps.</span><span class="dm">thatswassupps.</span><span class="ol">thatswassupps.</span><span class="fl">thatswassupps.</span><span class="dm">thatswassupps.</span><span class="ol">thatswassupps.</span><span class="fl">thatswassupps.</span></div></div>
-  <div class="marquee-row"><div class="marquee-trk right"><span class="dm">noted.</span><span class="ol">prolly not.</span><span class="dm">mmk.</span><span class="ol">if you say so.</span><span class="dm">sure.</span><span class="ol">guess so.</span><span class="dm">yup.</span><span class="ol">fine.</span><span class="dm">noted.</span><span class="ol">prolly not.</span><span class="dm">mmk.</span><span class="ol">if you say so.</span></div></div>
+  <div class="marquee-row"><div class="marquee-trk right"><span class="dm">oh no way.</span><span class="ol">prolly not.</span><span class="dm">terrible. i need it.</span><span class="ol">the worst. 10/10.</span><span class="dm">why would i wear this.</span><span class="ol">oh no way.</span><span class="dm">hate it. buying two.</span><span class="ol">prolly not.</span><span class="dm">terrible. i need it.</span><span class="ol">the worst. 10/10.</span><span class="dm">why would i wear this.</span><span class="ol">hate it. buying two.</span></div></div>
 </section>
 
 <div class="sline"></div>
 
 <!-- QUOTES -->
 <section class="quotes">
-  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="" loading="lazy"></div>
+  <div class="section-bg" data-slideshow="quotes"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/7.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/8.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/9.avif" alt="" loading="lazy"></div>
   <div class="quotes-grid">
-    <div class="q-item"><div class="q-text">"This hoodie actually made me go outside."</div><div class="q-attr">— prolly fake</div></div>
-    <div class="q-item"><div class="q-text">"Didn't expect to cry while unboxing it. I did."</div><div class="q-attr">— unverified</div></div>
+    <div class="q-item"><div class="q-text">"this hoodie actually made me go outside."</div><div class="q-attr">— some guy named kevin</div></div>
     <div class="q-item"><div class="q-text">"Wore this once. Got promoted. Unrelated?"</div><div class="q-attr">— nobody said this</div></div>
-    <div class="q-item"><div class="q-text">"Worst supplement ever. 12/10."</div><div class="q-attr">— real actually</div></div>
     <div class="q-item"><div class="q-text">"Another incredible addition to my collection of mediocrity."</div><div class="q-attr">— honest review</div></div>
   </div>
 </section>
@@ -667,17 +683,17 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- VIBES GRID — with real product images mixed in -->
 <section class="vibes" id="vibes">
-  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/sweatshirt_folded_01_result.avif" alt="" loading="lazy"></div>
-  <h2>whatever this is<span class="p">.</span></h2>
+  <div class="section-bg" data-slideshow="vibes"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/10.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/11.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/12.avif" alt="" loading="lazy"></div>
+  <h2>the group chat<span class="p">.</span></h2>
   <div class="vibes-grid">
     <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"></div>
     <div class="v-cell accent"><div class="v-cell-text">thatswassupps.</div></div>
-    <div class="v-cell"><div class="v-cell-text">wore it to a wedding.<br>nobody said anything.</div></div>
+    <div class="v-cell"><div class="v-cell-text">join the discord.<br>dumb memes. things you wish wouldn't be posted. but they are.</div></div>
     <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/grey_tshirt_03_result.avif" alt="" loading="lazy"></div>
-    <div class="v-cell"><div class="v-cell-text">landed the trick.<br>didn't even look back.</div></div>
+    <div class="v-cell"><div class="v-cell-text">enter the shitty crops.<br>get featured. win gear. no skill required.</div></div>
     <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/sweatshirt_folded_01_result.avif" alt="" loading="lazy"></div>
-    <div class="v-cell sp"><div class="v-cell-text">noted.</div></div>
-    <div class="v-cell"><div class="v-cell-text">complete the look.<br>(or don't, whatever)</div></div>
+    <div class="v-cell sp"><div class="v-cell-text">hate it. buying two.</div></div>
+    <div class="v-cell"><div class="v-cell-text">play the game. score points.<br>end of the month we send you gear.</div></div>
   </div>
 </section>
 
@@ -709,10 +725,10 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- MOMENTS -->
 <section class="moments" id="moments">
-  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="" loading="lazy"></div>
+  <div class="section-bg" data-slideshow="moments"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/13.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/14.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/15.avif" alt="" loading="lazy"></div>
   <div class="moments-header">
-    <h2 class="moments-title">thatswassupps<span class="spot">.</span> moments</h2>
-    <p class="moments-desc">dumb. weird. cool. you know it when you see it. prolly.</p>
+    <h2 class="moments-title">previous drops<span class="spot">.</span></h2>
+    <p class="moments-desc">ya we don't make more even if you're elon musk. when they gone they gone.</p>
   </div>
   <div class="moments-grid">
     <div class="mo-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/white_sweatshirt_posed_02_result.avif" alt="" loading="lazy"><div class="mo-grad"></div><div class="mo-content"><div class="mo-num">no. 001</div><div class="mo-text">accidentally did a kickflip while eating a sandwich</div></div></div>
@@ -746,7 +762,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- CTA -->
 <section class="cta" id="cta">
-  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/11.avif" alt="" loading="lazy"></div>
+  <div class="section-bg" data-slideshow="cta"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/16.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/17.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/18.avif" alt="" loading="lazy"></div>
   <h2>
     <span class="line"><span>thatswassupps<span class="spot">.</span></span></span>
     <span class="line"><span class="dim">or whatever.</span></span>
@@ -760,7 +776,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- CATEGORIES with real images -->
 <section class="cats">
-  <div class="section-bg"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="" loading="lazy"></div>
+  <div class="section-bg" data-slideshow="cats"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/1.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/2.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/3.avif" alt="" loading="lazy"></div>
   <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">clothing</div><div class="cat-cta">shop now →</div></div></div>
   <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/bucket_hat_solo_02_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">accessories</div><div class="cat-cta">shop now →</div></div></div>
   <div class="cat-card"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/white_vans_01_result.avif" alt="" loading="lazy"><div class="cat-content"><div class="cat-name">whatever else</div><div class="cat-cta">coming eventually →</div></div></div>
@@ -880,19 +896,19 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
       <span class="cart-total-price" id="cartTotal">$0.00</span>
     </div>
     <button class="cart-checkout-btn" id="cartCheckoutBtn" disabled>checkout</button>
-    <div class="cart-note">you'll be redirected to our secure checkout. noted.</div>
+    <div class="cart-note">you'll be redirected to our secure checkout.</div>
   </div>
 </div>
 
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-inner">
-    <div><div class="footer-brand">thatswassupps<span class="p">.</span></div><div class="footer-tag">noted.</div></div>
+    <div><div class="footer-brand">thatswassupps<span class="p">.</span></div><div class="footer-tag">the most overhyped streetwear brand.</div></div>
     <div class="footer-col"><h4>stuff</h4><a href="#">hoodies</a><a href="#">tees</a><a href="#">crewnecks</a><a href="#">hats</a></div>
     <div class="footer-col"><h4>idk</h4><a href="#">moments</a><a href="#">about</a><a href="#">contact or whatever</a></div>
     <div class="footer-col"><h4>follow us i guess</h4><a href="#">instagram</a><a href="#">tiktok</a><a href="#">youtube</a></div>
   </div>
-  <div class="footer-bottom"><span>&copy; 2026 thatswassupps. sure.</span><span>mmk.</span></div>
+  <div class="footer-bottom"><span>&copy; 2026 thatswassupps. sure.</span><span>the worst. 10/10.</span></div>
 </footer>
 
 <script>
@@ -960,11 +976,30 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
     gsap.to('#cbtns',{scrollTrigger:{trigger:'.cta',start:'top 40%',end:'top 20%',scrub:1},opacity:1,y:0});
 
     // Hero break parallax
-    gsap.to('.hero-break img',{scrollTrigger:{trigger:'.hero-break',start:'top bottom',end:'bottom top',scrub:1},y:-60,scale:1.08});
+    gsap.to('.hero-break .section-bg',{scrollTrigger:{trigger:'.hero-break',start:'top bottom',end:'bottom top',scrub:1},y:-60});
 
-    // Section background parallax
-    document.querySelectorAll('.section-bg img').forEach(function(img){
-      gsap.to(img,{scrollTrigger:{trigger:img.closest('section'),start:'top bottom',end:'bottom top',scrub:1},y:-40,scale:1.05});
+    // Section background parallax — only animate active images
+    document.querySelectorAll('.section-bg').forEach(function(bg){
+      var section = bg.closest('section');
+      if(section){
+        gsap.to(bg,{scrollTrigger:{trigger:section,start:'top bottom',end:'bottom top',scrub:1},y:-40});
+      }
+    });
+
+    // ── Background slideshows — staggered 5s cycle ──
+    var slideshows = document.querySelectorAll('[data-slideshow]');
+    slideshows.forEach(function(container, index) {
+      var imgs = container.querySelectorAll('img');
+      if (imgs.length <= 1) return;
+      var current = 0;
+      // Stagger start times so sections don't all change at the same moment
+      setTimeout(function() {
+        setInterval(function() {
+          imgs[current].classList.remove('active');
+          current = (current + 1) % imgs.length;
+          imgs[current].classList.add('active');
+        }, 5000);
+      }, index * 1200);
     });
 
     ScrollTrigger.refresh();
