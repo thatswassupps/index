@@ -254,8 +254,8 @@ img{display:block;max-width:100%;height:auto}
 .section-bg img.active{opacity:1}
 .section-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,var(--true-black) 0%,transparent 15%,transparent 85%,var(--true-black) 100%);z-index:1}
 
-/* Hero bg slideshow — more visible, impactful */
-.hero .section-bg img{filter:brightness(.35) saturate(.45)}
+/* Hero bg — video or image */
+.hero .section-bg img,.hero .section-bg video{filter:brightness(.2) saturate(.35)}
 
 /* Quotes bg slightly brighter */
 .quotes .section-bg img{filter:brightness(.1) saturate(.25)}
@@ -282,13 +282,13 @@ img{display:block;max-width:100%;height:auto}
 @media(max-width:768px){.vibe-setters{padding:40px 20px}.vibe-setters-grid{grid-template-columns:repeat(2,1fr);gap:8px}}
 
 /* ══ LIFESTYLE IMAGE CAROUSELS ══ */
-.life-carousel{overflow:hidden;position:relative;width:100%}
-.life-carousel-track{display:flex;width:max-content;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.life-carousel{overflow:hidden;position:relative;width:100%;min-height:1px}
+.life-carousel-track{display:flex;width:max-content;will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;animation-fill-mode:both;animation-play-state:running}
 .life-carousel-track.scroll-left{animation:lifeScrollL var(--carousel-speed,40s) linear infinite}
 .life-carousel-track.scroll-right{animation:lifeScrollR var(--carousel-speed,40s) linear infinite}
 @keyframes lifeScrollL{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(-50%,0,0)}}
 @keyframes lifeScrollR{0%{transform:translate3d(-50%,0,0)}100%{transform:translate3d(0,0,0)}}
-.life-carousel-track img{height:var(--carousel-h,280px);width:auto;object-fit:cover;flex-shrink:0;filter:brightness(.7) saturate(.4);transition:filter .6s ease}
+.life-carousel-track img{height:var(--carousel-h,280px);width:auto;object-fit:cover;flex-shrink:0;filter:brightness(.7) saturate(.4);transition:filter .6s ease;display:block}
 .life-carousel-track img:hover{filter:brightness(.9) saturate(.9)}
 
 /* Hero lifestyle strip — NOT see-through, just dimmed */
@@ -551,10 +551,10 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="section-bg" data-slideshow="hero">
-    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/1.avif" class="active" alt="" loading="lazy">
-    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/2.avif" alt="" loading="lazy">
-    <img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/3.avif" alt="" loading="lazy">
+  <div class="section-bg">
+    <video autoplay muted loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;filter:brightness(.2) saturate(.35)">
+      <source src="https://cdn.jsdelivr.net/gh/thatswassupps/videos@main/head_video_01%28compressed%29.mp4" type="video/mp4">
+    </video>
   </div>
   <div class="hero-content" id="hc">
     <h1 class="hero-title">thatswassupps<span class="p">.</span></h1>
@@ -600,22 +600,22 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
   <div class="section-carousel" style="margin:0 0 16px 0">
     <div class="life-carousel">
       <div class="life-carousel-track scroll-left gapped" style="--carousel-speed:50s;--carousel-h:160px">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/1.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/3.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/7.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/1.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/3.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/7.avif" alt="" loading="lazy">
-        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="" loading="lazy">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/1.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/3.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/7.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/1.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/2.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/3.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/4.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/5.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/6.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/7.avif" alt="">
+        <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/8.avif" alt="">
       </div>
     </div>
   </div>
@@ -653,22 +653,22 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <div class="section-carousel">
   <div class="life-carousel">
     <div class="life-carousel-track scroll-right gapped" style="--carousel-speed:45s">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/1.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/2.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/5.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/8.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/1.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/2.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/5.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/8.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/1.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/2.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/5.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/8.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/1.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/2.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/3.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/4.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/5.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/6.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/7.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_doubles_avif/8.avif" alt="">
     </div>
   </div>
 </div>
@@ -717,22 +717,22 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <div class="section-carousel tall">
   <div class="life-carousel">
     <div class="life-carousel-track scroll-left gapped" style="--carousel-speed:55s">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/9.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/12.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/15.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/13.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/16.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/9.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/12.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/15.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/13.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/16.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="" loading="lazy">
-      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="" loading="lazy">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/9.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/12.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/15.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/13.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/16.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/9.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/12.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/15.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/10.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/13.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/16.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/11.avif" alt="">
+      <img src="https://cdn.jsdelivr.net/gh/thatswassupps/photos_lifestyle@main/hero_single_avif/14.avif" alt="">
     </div>
   </div>
 </div>
