@@ -552,8 +552,8 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="section-bg">
-    <video autoplay muted loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;filter:brightness(.2) saturate(.35)">
-      <source src="https://cdn.jsdelivr.net/gh/thatswassupps/videos@main/head_video_01%28compressed%29.mp4" type="video/mp4">
+    <video id="heroVideo" autoplay muted loop playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;filter:brightness(.2) saturate(.35)">
+      <source src="https://cdn.jsdelivr.net/gh/thatswassupps/videos@main/header_video_opt.mp4" type="video/mp4">
     </video>
   </div>
   <div class="hero-content" id="hc">
@@ -921,6 +921,31 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <script>
 (function(){
   'use strict';
+
+  // ── Responsive hero video — swap source for mobile vs desktop ──
+  (function(){
+    var heroVid = document.getElementById('heroVideo');
+    if (!heroVid) return;
+    var desktopSrc = 'https://cdn.jsdelivr.net/gh/thatswassupps/videos@main/header_video_opt.mp4';
+    var mobileSrc = 'https://cdn.jsdelivr.net/gh/thatswassupps/videos@main/header_video_mobile_opt.mp4';
+    var currentSrc = '';
+    function setHeroVideo() {
+      var src = window.innerWidth <= 768 ? mobileSrc : desktopSrc;
+      if (src !== currentSrc) {
+        currentSrc = src;
+        heroVid.querySelector('source').src = src;
+        heroVid.load();
+        heroVid.play().catch(function(){});
+      }
+    }
+    setHeroVideo();
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(setHeroVideo, 250);
+    });
+  })();
+
   const loader=document.getElementById('loader');
   window.addEventListener('load',()=>{
     gsap.to(loader,{opacity:0,duration:.4,delay:1.8,ease:'power2.inOut',onComplete:()=>{loader.style.display='none';init()}});
