@@ -1,3 +1,19 @@
 {
-  "posts": []
+  "posts": [
+    {
+      "handle": "how-to-style-oversized-hoodie",
+      "title": "how to style an oversized hoodie without looking like you gave up.",
+      "pillar": "styling guides",
+      "date": "2026-03-28T19:42:28+00:00",
+      "tags": [
+        "styling",
+        "oversized hoodie",
+        "streetwear layering",
+        "outfit guide",
+        "hoodie outfits"
+      ],
+      "readTime": 5,
+      "excerpt": "oversized hoodies are either a lost-and-found situation or a main character moment. here's how to land on the right side of that."
+    }
+  ]
 }
