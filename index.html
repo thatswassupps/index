@@ -124,11 +124,13 @@ img{display:block;max-width:100%;height:auto}
 .products-track{display:flex;gap:28px;padding:16px 48px 32px;height:100%;align-items:flex-start;will-change:transform}
 
 .pcard{flex-shrink:0;width:clamp(260px,28vw,380px);opacity:0;transform:translateY(50px)}
-.pcard-img{position:relative;aspect-ratio:3/4;background:var(--spot);overflow:hidden;border:1px solid rgba(255,255,255,.03);transition:border-color .4s}
+.pcard-img{position:relative;aspect-ratio:3/4;background:var(--spot);overflow:hidden;border:1px solid rgba(255,255,255,.03);transition:border-color .4s;background-size:cover;background-position:center}
+.pcard-img::before{content:'';position:absolute;inset:0;background:rgba(212,184,86,.45);z-index:1;pointer-events:none}
+.pcard-img img{position:relative;z-index:2}
 .pcard:hover .pcard-img{border-color:rgba(212,184,86,.4)}
 .pcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease-expo)}
 .pcard:hover .pcard-img img{transform:scale(1.03)}
-.pcard-badge{position:absolute;top:12px;left:12px;font-family:var(--font-mono);font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;color:var(--true-black);background:var(--spot);padding:4px 10px;opacity:0;transform:translateY(-6px);transition:all .3s var(--ease-expo);z-index:2}
+.pcard-badge{position:absolute;top:12px;left:12px;font-family:var(--font-mono);font-size:7px;font-weight:700;letter-spacing:.12em;text-transform:lowercase;color:var(--true-black);background:var(--spot);padding:4px 10px;opacity:0;transform:translateY(-6px);transition:all .3s var(--ease-expo);z-index:3}
 .pcard:hover .pcard-badge{opacity:1;transform:translateY(0)}
 .pcard-info{padding:14px 0;display:flex;justify-content:space-between;align-items:flex-start}
 .pcard-name{font-family:var(--font-display);font-weight:600;font-size:14px;letter-spacing:-.01em}
@@ -652,13 +654,13 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
 <section class="vibes" id="vibes">
   <div class="section-bg" data-slideshow="vibes"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/10.avif" class="active" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/11.avif" alt="" loading="lazy"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/hero_images@main/12.avif" alt="" loading="lazy"></div>
   <h2>get linked<span class="p">.</span></h2>
-  <div class="vibes-grid" style="grid-template-columns:repeat(2,1fr)">
+  <div class="vibes-grid">
     <!-- TOP LEFT — PRODUCT (CLOSE-UP) -->
     <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/black_sweatshirt_angle_01_result.avif" alt="" loading="lazy"></div>
     <!-- TOP RIGHT — PRODUCT (SECOND ANGLE) -->
     <div class="v-cell img-cell"><img src="https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_images/grey_tshirt_03_result.avif" alt="" loading="lazy"></div>
     <!-- BOTTOM LEFT — DISCORD (PRIMARY) -->
-    <div class="v-cell accent" style="cursor:pointer" onclick="window.open('https://discord.gg/KABKfXJvu8','_blank')">
+    <div class="v-cell accent" style="cursor:pointer" onclick="window.open('https://discord.gg/nk6kNbzrBe','_blank')">
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;height:100%">
         <svg width="48" height="48" viewBox="0 0 71 55" fill="none"><path d="M60.1 4.9A58.5 58.5 0 0045.4.2a.2.2 0 00-.2.1 40.7 40.7 0 00-1.8 3.7 54 54 0 00-16.2 0A26.4 26.4 0 0025.4.3a.2.2 0 00-.2-.1A58.4 58.4 0 0010.5 4.9a.2.2 0 00-.1.1C1.5 18.7-.9 32.2.3 45.5v.1a58.7 58.7 0 0017.9 9.1.2.2 0 00.3-.1 42 42 0 003.6-5.9.2.2 0 00-.1-.3 38.6 38.6 0 01-5.5-2.7.2.2 0 010-4 .2.2 0 01.1 0 41.5 41.5 0 0035.4 0 .2.2 0 01.1.3c0 .2 0 .3-.2.4a36.4 36.4 0 01-5.5 2.6.2.2 0 00-.1.3 47.1 47.1 0 003.6 5.9.2.2 0 00.2.1A58.5 58.5 0 0070.4 45.6v-.1c1.4-15-2.3-28.1-9.8-39.6a.2.2 0 00-.1-.1zM23.7 37.3c-3.4 0-6.2-3.1-6.2-7s2.7-7 6.2-7 6.3 3.2 6.2 7-2.7 7-6.2 7zm23 0c-3.4 0-6.2-3.1-6.2-7s2.7-7 6.2-7 6.3 3.2 6.2 7-2.8 7-6.2 7z" fill="var(--spot)"/></svg>
         <div class="v-cell-text" style="font-size:14px;font-weight:700">the group chat you shouldn't be in.</div>
@@ -1078,6 +1080,11 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
       return 'core';
     }
 
+    // ── Merch background images ──
+    var merchBgBase = 'https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_backgrounds/';
+    var merchBgCount = 7;
+    var merchBgIndex = 0;
+
     // ── Build product card ──
     function buildProductCard(product) {
       var firstImage = product.images.length > 0 ? product.images[0].src : '';
@@ -1091,6 +1098,10 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
         variantTitle = product.options.map(function(o) { return o.values && o.values[0] ? (o.values[0].value || o.values[0]) : ''; }).join(' / ');
       }
 
+      // Cycle through background images
+      merchBgIndex++;
+      var bgUrl = merchBgBase + ((merchBgIndex % merchBgCount) + 1) + '.jpg';
+
       var badge = getBadge(product);
       var card = document.createElement('div');
       card.className = 'pcard';
@@ -1100,7 +1111,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
       if (comparePrice > price) priceHTML = '<span style="text-decoration:line-through;color:var(--g600);margin-right:6px">$' + comparePrice.toFixed(0) + '</span>';
       priceHTML += '$' + price.toFixed(0);
 
-      card.innerHTML = '<div class="pcard-img"><img src="' + firstImage + '" alt="' + product.title + '" loading="lazy"><div class="pcard-badge">' + badge + '</div></div>' +
+      card.innerHTML = '<div class="pcard-img" style="background-image:url(\'' + bgUrl + '\')"><img src="' + firstImage + '" alt="' + product.title + '" loading="lazy"><div class="pcard-badge">' + badge + '</div></div>' +
         '<div class="pcard-info"><div><div class="pcard-name">' + product.title.toLowerCase() + '</div><div class="pcard-variant">' + variantTitle.toLowerCase() + '</div></div><div class="pcard-price">' + priceHTML + '</div></div>' +
         '<button class="pcard-atc">add to cart</button>';
 
