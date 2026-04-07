@@ -805,16 +805,16 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText('thatswassupps.', W / 2, H * 0.2);
     ctx.font = '400 13px Montserrat';
-    ctx.fillStyle = '#999';
+    ctx.fillStyle = '#ccc';
     ctx.fillText('the game.', W / 2, H * 0.2 + 24);
     const menuFrame = Math.floor((frameCount / 20) % 4);
     drawHoodie(bird.x, bird.y, bird.rotation, menuFrame);
-    ctx.fillStyle = '#777';
+    ctx.fillStyle = '#bbb';
     ctx.font = '400 12px Montserrat';
     ctx.fillText('tap or press space.', W / 2, H * 0.72);
     ctx.fillText("or don't. whatever.", W / 2, H * 0.72 + 20);
     if (highScore > 0) {
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = '#aaa';
       ctx.font = '400 11px Montserrat';
       ctx.fillText(`best: ${highScore}. cool.`, W / 2, H * 0.82);
     }
@@ -823,7 +823,7 @@ function draw() {
       ctx.font = '700 10px Montserrat';
       ctx.fillText('👑 ' + leaderboardAllTime[0].name.toLowerCase() + ': ' + leaderboardAllTime[0].score, W / 2, H * 0.86);
     }
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = '#999';
     ctx.font = '400 9px Montserrat';
     ctx.fillText('collect bucket hats. avoid stuff.', W / 2, H * 0.92);
     ctx.fillText('pretty self explanatory.', W / 2, H * 0.92 + 14);
@@ -837,14 +837,14 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText(score, W / 2, H * 0.35);
     ctx.font = '400 14px Montserrat';
-    ctx.fillStyle = '#aaa';
+    ctx.fillStyle = '#ccc';
     ctx.fillText(currentDeathMsg, W / 2, H * 0.35 + 30);
     if (score > 0 && score === highScore) {
-      ctx.fillStyle = '#777';
+      ctx.fillStyle = '#bbb';
       ctx.font = '400 11px Montserrat';
       ctx.fillText('new best. sick.', W / 2, H * 0.35 + 55);
     }
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = '#aaa';
     ctx.font = '400 11px Montserrat';
     ctx.fillText('tap to continue.', W / 2, H * 0.65);
   }
@@ -860,13 +860,13 @@ function draw() {
     ctx.fillText(score, W / 2, H * 0.22);
 
     ctx.font = '400 12px Montserrat';
-    ctx.fillStyle = '#888';
+    ctx.fillStyle = '#bbb';
     ctx.fillText(currentDeathMsg, W / 2, H * 0.22 + 24);
 
     ctx.fillStyle = '#d4b856';
     ctx.font = '700 14px Montserrat';
     ctx.fillText('enter your name.', W / 2, H * 0.38);
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = '#aaa';
     ctx.font = '400 10px Montserrat';
     ctx.fillText('or don\'t. we\'ll call you anon.', W / 2, H * 0.38 + 20);
 
@@ -897,7 +897,7 @@ function draw() {
 
     // Skip button
     var skipY = btnY + 48;
-    ctx.fillStyle = '#555';
+    ctx.fillStyle = '#999';
     ctx.font = '400 10px Montserrat';
     ctx.fillText('skip →', W / 2, skipY);
 
@@ -923,14 +923,14 @@ function draw() {
     // All-time tab
     ctx.fillStyle = leaderboardTab === 'alltime' ? '#d4b856' : '#333';
     ctx.fillRect(W / 2 - tabW - 4, tabY, tabW, 28);
-    ctx.fillStyle = leaderboardTab === 'alltime' ? '#000' : '#888';
+    ctx.fillStyle = leaderboardTab === 'alltime' ? '#000' : '#bbb';
     ctx.font = '700 9px Montserrat';
     ctx.fillText('all time', W / 2 - tabW / 2 - 4, tabY + 18);
 
     // Monthly tab
     ctx.fillStyle = leaderboardTab === 'monthly' ? '#d4b856' : '#333';
     ctx.fillRect(W / 2 + 4, tabY, tabW, 28);
-    ctx.fillStyle = leaderboardTab === 'monthly' ? '#000' : '#888';
+    ctx.fillStyle = leaderboardTab === 'monthly' ? '#000' : '#bbb';
     ctx.fillText('this month', W / 2 + tabW / 2 + 4, tabY + 18);
 
     canvas._tabAllTime = { x: W / 2 - tabW - 4, y: tabY, w: tabW, h: 28 };
@@ -941,11 +941,11 @@ function draw() {
     var startY = tabY + 50;
 
     if (!leaderboardLoaded) {
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = '#aaa';
       ctx.font = '400 11px Montserrat';
       ctx.fillText('loading...', W / 2, startY + 20);
     } else if (entries.length === 0) {
-      ctx.fillStyle = '#666';
+      ctx.fillStyle = '#aaa';
       ctx.font = '400 11px Montserrat';
       ctx.fillText('no scores yet. be the first.', W / 2, startY + 20);
     } else {
@@ -961,20 +961,20 @@ function draw() {
         }
 
         // Rank
-        ctx.fillStyle = rankColors[i] || '#555';
+        ctx.fillStyle = rankColors[i] || '#999';
         ctx.font = '900 13px Montserrat';
         ctx.textAlign = 'left';
         ctx.fillText((i + 1) + '.', 55, rowY + 8);
 
         // Name
-        ctx.fillStyle = isTop3 ? '#fff' : '#999';
+        ctx.fillStyle = isTop3 ? '#fff' : '#ccc';
         ctx.font = (isTop3 ? '700' : '400') + ' 12px Montserrat';
         ctx.textAlign = 'left';
         var displayN = (entry.name || 'anon').substring(0, 12).toLowerCase();
         ctx.fillText(displayN, 90, rowY + 8);
 
         // Score
-        ctx.fillStyle = isTop3 ? '#d4b856' : '#777';
+        ctx.fillStyle = isTop3 ? '#d4b856' : '#bbb';
         ctx.font = '700 13px Montserrat';
         ctx.textAlign = 'right';
         ctx.fillText(entry.score, W - 55, rowY + 8);
@@ -983,13 +983,13 @@ function draw() {
 
     // Your score
     if (scoreSubmitted) {
-      ctx.fillStyle = '#555';
+      ctx.fillStyle = '#999';
       ctx.font = '400 10px Montserrat';
       ctx.textAlign = 'center';
       ctx.fillText('your score: ' + score + ' — submitted.', W / 2, H - 80);
     }
 
-    ctx.fillStyle = '#666';
+    ctx.fillStyle = '#aaa';
     ctx.font = '400 11px Montserrat';
     ctx.textAlign = 'center';
     ctx.fillText('tap to play again.', W / 2, H - 45);
