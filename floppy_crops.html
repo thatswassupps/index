@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>thatswassupps. the game.</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #gameWrapper {
+    position: relative;
+    width: min(100vw, calc(100vh * 9 / 16));
+    height: min(100vh, calc(100vw * 16 / 9));
+    max-width: 420px;
+    max-height: calc(420px * 16 / 9);
+  }
+  canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+</style>
+</head>
+<body>
+<div id="gameWrapper">
+  <canvas id="game"></canvas>
+  <input type="text" id="mobileNameInput" maxlength="12" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+    style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;opacity:0;pointer-events:none;z-index:10;
+    font-family:'Montserrat',sans-serif;font-size:16px;background:#1a1a1a;color:#fff;border:1px solid #d4b856;padding:10px;text-align:center">
+</div>
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+const W = 420;
+const H = 748;
+canvas.width = W;
+canvas.height = H;
+
+const frameSrcs = [
+  'https://i.imgur.com/2NKm0ZA.png',
+  'https://i.imgur.com/ePcBeEH.png',
+  'https://i.imgur.com/jzhMcpz.png',
+  'https://i.imgur.com/WKGRdDv.png'
+];
+const spriteFrames = [];
+let spritesLoaded = 0;
+
+frameSrcs.forEach((src, i) => {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    spriteFrames[i] = img;
+    spritesLoaded++;
+    console.log('Loaded sprite ' + i + ' (' + img.width + 'x' + img.height + ')');
+  };
+  img.onerror = () => {
+    console.error('Failed to load sprite ' + i + ': ' + src);
+    // Try again without crossOrigin (some hosts block it)
+    const retry = new Image();
+    retry.onload = () => {
+      spriteFrames[i] = retry;
+      spritesLoaded++;
+      console.log('Loaded sprite ' + i + ' on retry');
+    };
+    retry.onerror = () => {
+      console.error('Sprite ' + i + ' failed completely');
+    };
+    retry.src = src;
+  };
+  img.src = src;
+});
+
+// ── SUPABASE LEADERBOARD ──
+const SUPABASE_URL = 'https://dpntjpvpzgsjhfsmfwix.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbnRqcHZwemdzamhmc21md2l4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNzkwNDAsImV4cCI6MjA5MDg1NTA0MH0.UUxL54J5aheJGzY5g7-gK6oRVke9RfJKcxhOmpbvleQ';
+
+let leaderboardAllTime = [];
+let leaderboardMonthly = [];
+let submittingScore = false;
+let scoreSubmitted = false;
+let playerName = '';
+let nameInputActive = false;
+let cursorBlink = 0;
+let leaderboardTab = 'alltime'; // 'alltime' or 'monthly'
+let leaderboardLoaded = false;
+
+async function fetchLeaderboard() {
+  try {
+    // All-time top 10
+    var res1 = await fetch(SUPABASE_URL + '/rest/v1/scores?select=name,score,created_at&order=score.desc&limit=10', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (res1.ok) leaderboardAllTime = await res1.json();
+
+    // Monthly top 10 — first day of current month
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    var res2 = await fetch(SUPABASE_URL + '/rest/v1/scores?select=name,score,created_at&order=score.desc&limit=10&created_at=gte.' + monthStart, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (res2.ok) leaderboardMonthly = await res2.json();
+    leaderboardLoaded = true;
+  } catch (e) {
+    console.log('Leaderboard fetch error:', e);
+  }
+}
+
+// ── DISCORD WEBHOOK ──
+var DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1490476408001134622/dBJeAGdauodja-UJO9rmTZPJFAelu5oN3dmEBY4MjrqUae0jZErAmGDjjE3ce4lJlHDw';
+
+function sendDiscordAlert(playerName, scoreVal, type) {
+  var emoji = type === 'alltime' ? '👑' : '🗓';
+  var label = type === 'alltime' ? 'ALL-TIME HIGH SCORE' : 'MONTHLY HIGH SCORE';
+  var content = {
+    embeds: [{
+      title: emoji + ' NEW ' + label + ' ' + emoji,
+      description: '**' + (playerName || 'anon').toLowerCase() + '** just dropped a **' + scoreVal + '** on floppy crops.',
+      color: type === 'alltime' ? 13874262 : 10070709,
+      footer: { text: 'thatswassupps. the game.' },
+      timestamp: new Date().toISOString()
+    }]
+  };
+  fetch(DISCORD_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(content)
+  }).catch(function(e) { console.log('Discord webhook error:', e); });
+}
+
+async function submitScore(name, scoreVal) {
+  if (submittingScore) return;
+  submittingScore = true;
+  try {
+    // Check current highs BEFORE submitting
+    var prevAllTime = leaderboardAllTime.length > 0 ? leaderboardAllTime[0].score : 0;
+    var prevMonthly = leaderboardMonthly.length > 0 ? leaderboardMonthly[0].score : 0;
+
+    await fetch(SUPABASE_URL + '/rest/v1/scores', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ name: name.substring(0, 16) || 'anon', score: scoreVal })
+    });
+    scoreSubmitted = true;
+
+    // Send Discord alerts if records broken
+    if (scoreVal > prevAllTime) {
+      sendDiscordAlert(name, scoreVal, 'alltime');
+    } else if (scoreVal > prevMonthly) {
+      sendDiscordAlert(name, scoreVal, 'monthly');
+    }
+
+    fetchLeaderboard(); // refresh after submit
+  } catch (e) {
+    console.log('Score submit error:', e);
+  }
+  submittingScore = false;
+}
+
+// Fetch leaderboard on load
+fetchLeaderboard();
+
+// ── BACKGROUND MUSIC ──
+var bgMusic = new Audio('https://cdn.jsdelivr.net/gh/thatswassupps/audio@main/1.wav');
+bgMusic.loop = true;
+bgMusic.volume = 0.4;
+var musicStarted = false;
+function startMusic() {
+  if (musicStarted) return;
+  bgMusic.play().then(function() { musicStarted = true; }).catch(function(){});
+}
+
+// ── SOUND EFFECTS ──
+var sfxHat = new Audio('https://cdn.jsdelivr.net/gh/thatswassupps/audio@main/sound_effect_01.wav');
+sfxHat.volume = 0.6;
+function playHatSFX() {
+  sfxHat.currentTime = 0;
+  sfxHat.play().catch(function(){});
+}
+
+let gameState = 'menu';
+let score = 0;
+let highScore = 0;
+let frameCount = 0;
+let shakeTimer = 0;
+let shakeIntensity = 0;
+let currentDeathMsg = '';
+
+const bird = {
+  x: W * 0.25, y: H * 0.45, w: 64, h: 64,
+  vy: 0, gravity: 0.45, jumpForce: -7.5, rotation: 0,
+  spriteIndex: 0, flapTimer: 0, trail: [], deathFrame: 0
+};
+
+let pipes = [];
+const pipeW = 68;
+const pipeGap = 155;
+const pipeSpeed = 2.3;
+let pipeTimer = 0;
+const pipeInterval = 95;
+
+let bucketHats = [];
+let particles = [];
+let bgElements = [];
+let bgScroll = 0;
+let stars = [];
+
+const graffitiTags = [
+  'mmk.', 'prolly not.', 'fine.', 'sure.', 'yup.',
+  'noted.', 'guess so.', 'whatever.', 'ok.', 'meh.',
+  'cool.', 'nah.', 'idk.', 'k.', 'word.'
+];
+const deathMsgs = [
+  'mmk.', 'cool.', 'that happened.', 'noted.',
+  'sure.', 'whatever.', 'fine.', 'ok then.',
+  'yup.', 'hm.', 'neat.', 'wow. jk.',
+  'rip i guess.', 'tragic.', 'anyway.',
+  "didn't even try.", 'on purpose.',
+  'meant to do that.', 'artistic choice.'
+];
+const graffitiColors = ['#ff4444', '#44aaff', '#ffaa00', '#44ff88', '#ff44ff', '#ffffff'];
+
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 40; i++) {
+    stars.push({
+      x: Math.random() * W, y: Math.random() * H * 0.5,
+      brightness: 0.25 + Math.random() * 0.5,
+      twinkleSpeed: 0.01 + Math.random() * 0.03,
+      twinkleOffset: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function initBackground() {
+  bgElements = [];
+  for (let i = 0; i < 8; i++) {
+    const numWindows = Math.floor(Math.random() * 8) + 2;
+    const windowStates = [];
+    for (let wy = 0; wy < numWindows; wy++) {
+      for (let wx = 0; wx < 3; wx++) {
+        windowStates.push({ lit: Math.random() > 0.4, brightness: 0.35 + Math.random() * 0.45 });
+      }
+    }
+    bgElements.push({
+      type: 'building', x: i * 120 + Math.random() * 60,
+      w: 50 + Math.random() * 70, h: 120 + Math.random() * 200,
+      shade: 80 + Math.random() * 40, windows: numWindows, windowStates, speed: 0.3
+    });
+  }
+  for (let i = 0; i < 10; i++) {
+    bgElements.push({
+      type: 'graffiti', x: Math.random() * W * 2, y: H - 120 - Math.random() * 150,
+      text: graffitiTags[Math.floor(Math.random() * graffitiTags.length)],
+      color: graffitiColors[Math.floor(Math.random() * graffitiColors.length)],
+      size: 14 + Math.random() * 12, rotation: (Math.random() - 0.5) * 0.3, speed: 0.5
+    });
+  }
+  for (let i = 0; i < 3; i++) {
+    bgElements.push({ type: 'bgDumpster', x: Math.random() * W * 2, y: H - 85, speed: 0.5 });
+  }
+}
+
+function wrapX(rawX, range) { return ((rawX % range) + range) % range; }
+
+function drawBackground() {
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
+  skyGrad.addColorStop(0, '#6e7b8b');
+  skyGrad.addColorStop(0.4, '#8895a5');
+  skyGrad.addColorStop(0.8, '#9aa5b4');
+  skyGrad.addColorStop(1, '#7a8595');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  stars.forEach(s => {
+    const twinkle = Math.sin(frameCount * s.twinkleSpeed + s.twinkleOffset) * 0.15;
+    const alpha = Math.max(0.05, s.brightness + twinkle);
+    ctx.fillStyle = `rgba(255,255,240,${alpha})`;
+    ctx.fillRect(s.x, s.y, 1.5, 1.5);
+  });
+
+  bgElements.forEach(el => {
+    if (el.type === 'building') {
+      const bx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
+      ctx.fillStyle = `rgb(${el.shade}, ${el.shade}, ${el.shade + 5})`;
+      ctx.fillRect(bx, H - 70 - el.h, el.w, el.h);
+      let idx = 0;
+      for (let wy = 0; wy < el.windows; wy++) {
+        for (let wx = 0; wx < 3; wx++) {
+          const ws = el.windowStates[idx++];
+          ctx.fillStyle = ws.lit ? `rgba(255,220,100,${ws.brightness})` : 'rgba(0,0,0,0.4)';
+          ctx.fillRect(bx + 8 + wx * (el.w / 3.5), H - 70 - el.h + 15 + wy * 25, 8, 12);
+        }
+      }
+    }
+  });
+
+  bgElements.forEach(el => {
+    if (el.type === 'graffiti') {
+      const gx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
+      ctx.save();
+      ctx.translate(gx, el.y);
+      ctx.rotate(el.rotation);
+      ctx.font = `900 ${el.size}px Montserrat`;
+      ctx.fillStyle = el.color + 'AA';
+      ctx.fillText(el.text, 0, 0);
+      ctx.restore();
+    }
+  });
+
+  bgElements.forEach(el => {
+    if (el.type === 'bgDumpster') {
+      const dx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
+      drawMiniDumpster(dx, el.y, 0.5);
+    }
+  });
+
+  ctx.fillStyle = '#5a5a65';
+  ctx.fillRect(0, H - 70, W, 70);
+  ctx.fillStyle = '#6a6a75';
+  ctx.fillRect(0, H - 70, W, 3);
+
+  for (let i = 0; i < 15; i++) {
+    const lx = wrapX(i * 40 - bgScroll * 1.5, W + 40) - 20;
+    ctx.fillStyle = '#6a6a72';
+    ctx.fillRect(lx, H - 50, 20, 1);
+  }
+}
+
+function drawMiniDumpster(x, y, scale) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#5a8a5a';
+  ctx.fillRect(-25, -30, 50, 30);
+  ctx.fillStyle = '#4a7a4a';
+  ctx.fillRect(-25, -30, 50, 5);
+  ctx.fillStyle = '#6a9a6a';
+  ctx.fillRect(-20, -25, 3, 20);
+  ctx.fillRect(17, -25, 3, 20);
+  ctx.restore();
+}
+
+function drawHoodie(x, y, rotation, spriteIdx) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  const drawSize = bird.w;
+  
+  if (spriteFrames[spriteIdx]) {
+    ctx.drawImage(spriteFrames[spriteIdx], -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+  } else {
+    // Fallback: draw a simple placeholder while loading
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(0, 0, drawSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 5px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText('loading...', 0, 3);
+  }
+  ctx.restore();
+}
+
+function getCurrentFrame() {
+  if (gameState === 'dead') return 3;
+  if (bird.flapTimer > 10) return 2;
+  if (bird.flapTimer > 5) return 1;
+  if (bird.vy > 2) return 3;
+  return 0;
+}
+
+function drawPipe(pipe) {
+  const topH = pipe.topH;
+  const bottomY = pipe.topH + pipeGap;
+  const bottomH = H - 70 - bottomY;
+
+  ctx.fillStyle = '#707080';
+  ctx.fillRect(pipe.x, 0, pipeW, topH);
+  for (let row = 0; row < topH / 12; row++) {
+    for (let col = 0; col < 3; col++) {
+      const bx = pipe.x + 4 + col * 22 + (row % 2 === 0 ? 0 : 11);
+      const by = row * 12 + 2;
+      if (by < topH - 5) {
+        ctx.fillStyle = '#7a7a8a';
+        ctx.fillRect(bx, by, 18, 9);
+        ctx.fillStyle = '#707080';
+        ctx.fillRect(bx, by, 18, 1);
+      }
+    }
+  }
+  ctx.fillStyle = '#8888998';
+  ctx.fillRect(pipe.x - 5, topH - 18, pipeW + 10, 18);
+  ctx.fillStyle = '#999aaa';
+  ctx.fillRect(pipe.x - 5, topH - 18, pipeW + 10, 3);
+  ctx.fillStyle = '#777788';
+  ctx.fillRect(pipe.x - 5, topH - 3, pipeW + 10, 3);
+  ctx.fillStyle = '#aaaabb';
+  ctx.beginPath(); ctx.arc(pipe.x + 3, topH - 9, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(pipe.x + pipeW - 3, topH - 9, 3, 0, Math.PI * 2); ctx.fill();
+
+  // ── BOTTOM OBSTACLE — stacked shipping boxes ──
+  ctx.fillStyle = '#8a7a60';
+  ctx.fillRect(pipe.x, bottomY, pipeW, bottomH);
+  // Individual boxes
+  for (let row = 0; row < bottomH / 36; row++) {
+    const dy = bottomY + row * 36;
+    // Box body
+    ctx.fillStyle = row % 2 === 0 ? '#9a8a6a' : '#8a7a5a';
+    ctx.fillRect(pipe.x + 1, dy + 1, pipeW - 2, 33);
+    // Box tape/seam line
+    ctx.fillStyle = '#b0a080';
+    ctx.fillRect(pipe.x + pipeW / 2 - 1, dy + 1, 2, 33);
+    // Box flap lines
+    ctx.fillStyle = '#7a6a50';
+    ctx.fillRect(pipe.x + 1, dy + 1, pipeW - 2, 1);
+    ctx.fillRect(pipe.x + 1, dy + 10, pipeW - 2, 1);
+    // Brand mark on some boxes
+    if (row % 3 === 0) {
+      ctx.fillStyle = 'rgba(212,184,86,0.5)';
+      ctx.font = '700 6px Montserrat';
+      ctx.textAlign = 'center';
+      ctx.fillText('twsp.', pipe.x + pipeW / 2, dy + 24);
+    }
+  }
+  // Top cap — open box flaps
+  ctx.fillStyle = '#a09070';
+  ctx.fillRect(pipe.x - 4, bottomY, pipeW + 8, 14);
+  ctx.fillStyle = '#b0a080';
+  ctx.fillRect(pipe.x - 4, bottomY, pipeW + 8, 2);
+  ctx.fillStyle = '#8a7a60';
+  ctx.fillRect(pipe.x - 4, bottomY + 12, pipeW + 8, 2);
+  // Flap shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.beginPath();
+  ctx.moveTo(pipe.x - 4, bottomY);
+  ctx.lineTo(pipe.x + pipeW / 2, bottomY - 8);
+  ctx.lineTo(pipe.x + pipeW + 4, bottomY);
+  ctx.closePath();
+  ctx.fill();
+
+  if (pipe.tag) {
+    ctx.save();
+    ctx.font = `900 ${pipe.tagSize}px Montserrat`;
+    ctx.fillStyle = pipe.tagColor + 'BB';
+    ctx.translate(pipe.x + pipeW / 2, bottomY + 50);
+    ctx.rotate(pipe.tagRotation);
+    ctx.textAlign = 'center';
+    ctx.fillText(pipe.tag, 0, 0);
+    ctx.restore();
+  }
+}
+
+function drawBucketHat(hat) {
+  ctx.save();
+  ctx.translate(hat.x, hat.y);
+  const bob = Math.sin(frameCount * 0.04 + hat.x * 0.01) * 3;
+  ctx.translate(0, bob);
+  
+  // Glow ring
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+  
+  // Hat brim
+  ctx.fillStyle = '#111';
+  ctx.beginPath(); ctx.ellipse(0, 5, 18, 6, 0, 0, Math.PI * 2); ctx.fill();
+  
+  // Hat crown
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.moveTo(-12, 5); ctx.quadraticCurveTo(-14, -8, -7, -14);
+  ctx.lineTo(7, -14); ctx.quadraticCurveTo(14, -8, 12, 5);
+  ctx.closePath(); ctx.fill();
+  
+  // White band on hat
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(-10, -4, 20, 3);
+  
+  // Brim highlight
+  ctx.strokeStyle = '#444';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(0, 5, 18, 6, 0, 0, Math.PI); ctx.stroke();
+  
+  ctx.restore();
+}
+
+function spawnParticles(x, y, color, count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6,
+      life: 1, decay: 0.02 + Math.random() * 0.03, size: 2 + Math.random() * 4, color
+    });
+  }
+}
+function updateParticles() {
+  particles = particles.filter(p => {
+    p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life -= p.decay;
+    return p.life > 0;
+  });
+}
+function drawParticles() {
+  particles.forEach(p => {
+    const alpha = Math.floor(p.life * 255).toString(16).padStart(2, '0');
+    ctx.fillStyle = p.color + alpha;
+    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+  });
+}
+
+function checkCollision() {
+  const bx = bird.x - bird.w * 0.3;
+  const by = bird.y - bird.h * 0.3;
+  const bw = bird.w * 0.6;
+  const bh = bird.h * 0.6;
+  if (bird.y + bird.h / 2 > H - 70 || bird.y - bird.h / 2 < 0) return true;
+  for (const pipe of pipes) {
+    const bottomY = pipe.topH + pipeGap;
+    if (bx + bw > pipe.x && bx < pipe.x + pipeW) {
+      if (by < pipe.topH || by + bh > bottomY) return true;
+    }
+  }
+  return false;
+}
+
+function checkBucketHats() {
+  bucketHats = bucketHats.filter(hat => {
+    const dx = bird.x - hat.x, dy = bird.y - hat.y;
+    if (Math.sqrt(dx * dx + dy * dy) < 30) {
+      score += 5;
+      playHatSFX();
+      spawnParticles(hat.x, hat.y, '#ffffff', 12);
+      return false;
+    }
+    return true;
+  });
+}
+
+function jump() {
+  startMusic();
+  if (gameState === 'menu') {
+    gameState = 'playing';
+    bird.vy = bird.jumpForce; bird.flapTimer = 15;
+    pipes = []; bucketHats = []; particles = [];
+    score = 0; pipeTimer = 60;
+    bird.y = H * 0.45; bird.trail = [];
+    scoreSubmitted = false;
+    playerName = '';
+  } else if (gameState === 'playing') {
+    bird.vy = bird.jumpForce; bird.flapTimer = 15;
+  } else if (gameState === 'dead') {
+    if (frameCount - bird.deathFrame > 30) {
+      // Go to name input
+      nameInputActive = true;
+      gameState = 'nameinput';
+      playerName = '';
+    }
+  } else if (gameState === 'leaderboard') {
+    gameState = 'menu';
+    bird.y = H * 0.45; bird.vy = 0; bird.rotation = 0;
+    pipes = []; bucketHats = []; particles = [];
+  }
+}
+
+canvas.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  var rect = canvas.getBoundingClientRect();
+  var scaleX = W / rect.width;
+  var scaleY = H / rect.height;
+  var tx = (e.clientX - rect.left) * scaleX;
+  var ty = (e.clientY - rect.top) * scaleY;
+
+  if (gameState === 'nameinput') {
+    var mobileInput = document.getElementById('mobileNameInput');
+    // Tap submit button
+    if (canvas._submitBtn && tx >= canvas._submitBtn.x && tx <= canvas._submitBtn.x + canvas._submitBtn.w &&
+        ty >= canvas._submitBtn.y && ty <= canvas._submitBtn.y + canvas._submitBtn.h) {
+      if (playerName.trim() === '') playerName = 'anon';
+      submitScore(playerName, score);
+      nameInputActive = false;
+      gameState = 'leaderboard';
+      mobileInput.style.opacity = '0';
+      mobileInput.style.pointerEvents = 'none';
+      mobileInput.blur();
+      return;
+    }
+    // Tap skip
+    if (canvas._skipBtn && tx >= canvas._skipBtn.x && tx <= canvas._skipBtn.x + canvas._skipBtn.w &&
+        ty >= canvas._skipBtn.y && ty <= canvas._skipBtn.y + canvas._skipBtn.h) {
+      playerName = 'anon';
+      submitScore(playerName, score);
+      nameInputActive = false;
+      gameState = 'leaderboard';
+      mobileInput.style.opacity = '0';
+      mobileInput.style.pointerEvents = 'none';
+      mobileInput.blur();
+      return;
+    }
+    // Tap input box — focus mobile keyboard
+    if (canvas._inputBox && tx >= canvas._inputBox.x && tx <= canvas._inputBox.x + canvas._inputBox.w &&
+        ty >= canvas._inputBox.y && ty <= canvas._inputBox.y + canvas._inputBox.h) {
+      mobileInput.style.opacity = '0.01';
+      mobileInput.style.pointerEvents = 'auto';
+      mobileInput.value = playerName;
+      mobileInput.focus();
+      return;
+    }
+    return;
+  }
+
+  if (gameState === 'leaderboard') {
+    // Tab switching
+    if (canvas._tabAllTime && tx >= canvas._tabAllTime.x && tx <= canvas._tabAllTime.x + canvas._tabAllTime.w &&
+        ty >= canvas._tabAllTime.y && ty <= canvas._tabAllTime.y + canvas._tabAllTime.h) {
+      leaderboardTab = 'alltime';
+      return;
+    }
+    if (canvas._tabMonthly && tx >= canvas._tabMonthly.x && tx <= canvas._tabMonthly.x + canvas._tabMonthly.w &&
+        ty >= canvas._tabMonthly.y && ty <= canvas._tabMonthly.y + canvas._tabMonthly.h) {
+      leaderboardTab = 'monthly';
+      return;
+    }
+    jump();
+    return;
+  }
+
+  if (!nameInputActive) jump();
+});
+
+// Mobile input sync
+var mobileInput = document.getElementById('mobileNameInput');
+mobileInput.addEventListener('input', function() {
+  playerName = this.value.substring(0, 12);
+});
+mobileInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (playerName.trim() === '') playerName = 'anon';
+    submitScore(playerName, score);
+    nameInputActive = false;
+    gameState = 'leaderboard';
+    this.style.opacity = '0';
+    this.style.pointerEvents = 'none';
+    this.blur();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (nameInputActive) {
+    if (e.key === 'Enter') {
+      // Submit score
+      if (playerName.trim() === '') playerName = 'anon';
+      submitScore(playerName, score);
+      nameInputActive = false;
+      gameState = 'leaderboard';
+      return;
+    }
+    if (e.key === 'Backspace') {
+      playerName = playerName.slice(0, -1);
+      return;
+    }
+    if (e.key === 'Escape') {
+      playerName = 'anon';
+      submitScore(playerName, score);
+      nameInputActive = false;
+      gameState = 'leaderboard';
+      return;
+    }
+    if (e.key.length === 1 && playerName.length < 12) {
+      playerName += e.key;
+    }
+    return;
+  }
+  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); jump(); }
+});
+
+function spawnPipe() {
+  const minTop = 80, maxTop = H - 70 - pipeGap - 80;
+  const topH = minTop + Math.random() * (maxTop - minTop);
+  pipes.push({
+    x: W + 10, topH, scored: false,
+    tag: Math.random() > 0.5 ? graffitiTags[Math.floor(Math.random() * graffitiTags.length)] : null,
+    tagColor: graffitiColors[Math.floor(Math.random() * graffitiColors.length)],
+    tagSize: 8 + Math.random() * 6,
+    tagRotation: (Math.random() - 0.5) * 0.4
+  });
+  if (Math.random() > 0.4) {
+    bucketHats.push({
+      x: W + 10 + pipeW / 2,
+      y: topH + pipeGap / 2 + (Math.random() - 0.5) * 40
+    });
+  }
+}
+
+function update() {
+  frameCount++;
+  bgScroll += gameState === 'playing' ? pipeSpeed : 0.5;
+
+  if (gameState === 'playing') {
+    bird.vy += bird.gravity; bird.y += bird.vy;
+    bird.rotation = Math.min(Math.max(bird.vy * 0.06, -0.5), 1.2);
+    if (bird.flapTimer > 0) bird.flapTimer--;
+    bird.trail.push({ x: bird.x, y: bird.y, life: 1 });
+    if (bird.trail.length > 8) bird.trail.shift();
+    bird.trail.forEach(t => t.life -= 0.12);
+    pipeTimer++;
+    if (pipeTimer >= pipeInterval) { pipeTimer = 0; spawnPipe(); }
+    pipes.forEach(pipe => {
+      pipe.x -= pipeSpeed;
+      if (!pipe.scored && pipe.x + pipeW < bird.x) { pipe.scored = true; score++; }
+    });
+    pipes = pipes.filter(p => p.x > -pipeW - 20);
+    bucketHats.forEach(hat => hat.x -= pipeSpeed);
+    bucketHats = bucketHats.filter(h => h.x > -30);
+    checkBucketHats();
+    if (checkCollision()) {
+      gameState = 'dead';
+      bird.deathFrame = frameCount;
+      currentDeathMsg = deathMsgs[Math.floor(Math.random() * deathMsgs.length)];
+      if (score > highScore) highScore = score;
+      shakeTimer = 12; shakeIntensity = 8;
+      spawnParticles(bird.x, bird.y, '#ff4444', 20);
+      spawnParticles(bird.x, bird.y, '#ffffff', 10);
+    }
+  }
+
+  if (gameState === 'menu') {
+    bird.y = H * 0.45 + Math.sin(frameCount * 0.03) * 12;
+    bird.rotation = Math.sin(frameCount * 0.02) * 0.05;
+    bird.spriteIndex = Math.floor((frameCount / 20) % 4);
+  }
+
+  if (gameState === 'dead') {
+    bird.vy += bird.gravity * 0.5; bird.y += bird.vy;
+    bird.rotation += 0.1;
+    if (bird.y > H - 70) bird.y = H - 70;
+  }
+
+  if (shakeTimer > 0) { shakeTimer--; shakeIntensity *= 0.85; }
+  updateParticles();
+}
+
+function draw() {
+  ctx.save();
+  if (shakeTimer > 0) {
+    ctx.translate((Math.random() - 0.5) * shakeIntensity, (Math.random() - 0.5) * shakeIntensity);
+  }
+  drawBackground();
+  pipes.forEach(drawPipe);
+  bucketHats.forEach(drawBucketHat);
+
+  bird.trail.forEach(t => {
+    if (t.life > 0) {
+      ctx.fillStyle = `rgba(255,255,255,${t.life * 0.08})`;
+      ctx.fillRect(t.x - 3, t.y - 3, 6, 6);
+    }
+  });
+
+  const frame = gameState === 'menu' ? bird.spriteIndex : getCurrentFrame();
+  drawHoodie(bird.x, bird.y, bird.rotation, frame);
+  drawParticles();
+
+  if (gameState === 'playing') {
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = '900 36px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText(score, W / 2, 60);
+  }
+
+  if (gameState === 'menu') {
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 22px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText('thatswassupps.', W / 2, H * 0.2);
+    ctx.font = '400 13px Montserrat';
+    ctx.fillStyle = '#999';
+    ctx.fillText('the game.', W / 2, H * 0.2 + 24);
+    const menuFrame = Math.floor((frameCount / 20) % 4);
+    drawHoodie(bird.x, bird.y, bird.rotation, menuFrame);
+    ctx.fillStyle = '#777';
+    ctx.font = '400 12px Montserrat';
+    ctx.fillText('tap or press space.', W / 2, H * 0.72);
+    ctx.fillText("or don't. whatever.", W / 2, H * 0.72 + 20);
+    if (highScore > 0) {
+      ctx.fillStyle = '#666';
+      ctx.font = '400 11px Montserrat';
+      ctx.fillText(`best: ${highScore}. cool.`, W / 2, H * 0.82);
+    }
+    if (leaderboardAllTime.length > 0) {
+      ctx.fillStyle = '#d4b856';
+      ctx.font = '700 10px Montserrat';
+      ctx.fillText('👑 ' + leaderboardAllTime[0].name.toLowerCase() + ': ' + leaderboardAllTime[0].score, W / 2, H * 0.86);
+    }
+    ctx.fillStyle = '#555';
+    ctx.font = '400 9px Montserrat';
+    ctx.fillText('collect bucket hats. avoid stuff.', W / 2, H * 0.92);
+    ctx.fillText('pretty self explanatory.', W / 2, H * 0.92 + 14);
+  }
+
+  if (gameState === 'dead') {
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 28px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText(score, W / 2, H * 0.35);
+    ctx.font = '400 14px Montserrat';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText(currentDeathMsg, W / 2, H * 0.35 + 30);
+    if (score > 0 && score === highScore) {
+      ctx.fillStyle = '#777';
+      ctx.font = '400 11px Montserrat';
+      ctx.fillText('new best. sick.', W / 2, H * 0.35 + 55);
+    }
+    ctx.fillStyle = '#666';
+    ctx.font = '400 11px Montserrat';
+    ctx.fillText('tap to continue.', W / 2, H * 0.65);
+  }
+
+  // ── NAME INPUT SCREEN ──
+  if (gameState === 'nameinput') {
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 28px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText(score, W / 2, H * 0.22);
+
+    ctx.font = '400 12px Montserrat';
+    ctx.fillStyle = '#888';
+    ctx.fillText(currentDeathMsg, W / 2, H * 0.22 + 24);
+
+    ctx.fillStyle = '#d4b856';
+    ctx.font = '700 14px Montserrat';
+    ctx.fillText('enter your name.', W / 2, H * 0.38);
+    ctx.fillStyle = '#666';
+    ctx.font = '400 10px Montserrat';
+    ctx.fillText('or don\'t. we\'ll call you anon.', W / 2, H * 0.38 + 20);
+
+    // Name input box
+    var boxW = 220, boxH = 40;
+    var boxX = W / 2 - boxW / 2, boxY = H * 0.45;
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+    ctx.strokeStyle = '#d4b856';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+    cursorBlink++;
+    var displayName = playerName;
+    if (cursorBlink % 60 < 30) displayName += '|';
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 16px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText(displayName, W / 2, boxY + 26);
+
+    // Submit button
+    var btnY = boxY + boxH + 16;
+    ctx.fillStyle = '#d4b856';
+    ctx.fillRect(boxX, btnY, boxW, 36);
+    ctx.fillStyle = '#000';
+    ctx.font = '700 11px Montserrat';
+    ctx.fillText('submit. or whatever.', W / 2, btnY + 23);
+
+    // Skip button
+    var skipY = btnY + 48;
+    ctx.fillStyle = '#555';
+    ctx.font = '400 10px Montserrat';
+    ctx.fillText('skip →', W / 2, skipY);
+
+    // Store button positions for tap detection
+    canvas._submitBtn = { x: boxX, y: btnY, w: boxW, h: 36 };
+    canvas._skipBtn = { x: W / 2 - 30, y: skipY - 12, w: 60, h: 18 };
+    canvas._inputBox = { x: boxX, y: boxY, w: boxW, h: boxH };
+  }
+
+  // ── LEADERBOARD SCREEN ──
+  if (gameState === 'leaderboard') {
+    ctx.fillStyle = 'rgba(0,0,0,0.82)';
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.fillStyle = '#d4b856';
+    ctx.font = '900 18px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText('leaderboard.', W / 2, 50);
+
+    // Tabs
+    var tabY = 75;
+    var tabW = 100;
+    // All-time tab
+    ctx.fillStyle = leaderboardTab === 'alltime' ? '#d4b856' : '#333';
+    ctx.fillRect(W / 2 - tabW - 4, tabY, tabW, 28);
+    ctx.fillStyle = leaderboardTab === 'alltime' ? '#000' : '#888';
+    ctx.font = '700 9px Montserrat';
+    ctx.fillText('all time', W / 2 - tabW / 2 - 4, tabY + 18);
+
+    // Monthly tab
+    ctx.fillStyle = leaderboardTab === 'monthly' ? '#d4b856' : '#333';
+    ctx.fillRect(W / 2 + 4, tabY, tabW, 28);
+    ctx.fillStyle = leaderboardTab === 'monthly' ? '#000' : '#888';
+    ctx.fillText('this month', W / 2 + tabW / 2 + 4, tabY + 18);
+
+    canvas._tabAllTime = { x: W / 2 - tabW - 4, y: tabY, w: tabW, h: 28 };
+    canvas._tabMonthly = { x: W / 2 + 4, y: tabY, w: tabW, h: 28 };
+
+    // Leaderboard entries
+    var entries = leaderboardTab === 'alltime' ? leaderboardAllTime : leaderboardMonthly;
+    var startY = tabY + 50;
+
+    if (!leaderboardLoaded) {
+      ctx.fillStyle = '#666';
+      ctx.font = '400 11px Montserrat';
+      ctx.fillText('loading...', W / 2, startY + 20);
+    } else if (entries.length === 0) {
+      ctx.fillStyle = '#666';
+      ctx.font = '400 11px Montserrat';
+      ctx.fillText('no scores yet. be the first.', W / 2, startY + 20);
+    } else {
+      entries.forEach(function(entry, i) {
+        var rowY = startY + i * 36;
+        var rankColors = ['#d4b856', '#c0c0c0', '#cd7f32'];
+        var isTop3 = i < 3;
+
+        // Highlight row
+        if (isTop3) {
+          ctx.fillStyle = 'rgba(212,184,86,0.06)';
+          ctx.fillRect(40, rowY - 12, W - 80, 32);
+        }
+
+        // Rank
+        ctx.fillStyle = rankColors[i] || '#555';
+        ctx.font = '900 13px Montserrat';
+        ctx.textAlign = 'left';
+        ctx.fillText((i + 1) + '.', 55, rowY + 8);
+
+        // Name
+        ctx.fillStyle = isTop3 ? '#fff' : '#999';
+        ctx.font = (isTop3 ? '700' : '400') + ' 12px Montserrat';
+        ctx.textAlign = 'left';
+        var displayN = (entry.name || 'anon').substring(0, 12).toLowerCase();
+        ctx.fillText(displayN, 90, rowY + 8);
+
+        // Score
+        ctx.fillStyle = isTop3 ? '#d4b856' : '#777';
+        ctx.font = '700 13px Montserrat';
+        ctx.textAlign = 'right';
+        ctx.fillText(entry.score, W - 55, rowY + 8);
+      });
+    }
+
+    // Your score
+    if (scoreSubmitted) {
+      ctx.fillStyle = '#555';
+      ctx.font = '400 10px Montserrat';
+      ctx.textAlign = 'center';
+      ctx.fillText('your score: ' + score + ' — submitted.', W / 2, H - 80);
+    }
+
+    ctx.fillStyle = '#666';
+    ctx.font = '400 11px Montserrat';
+    ctx.textAlign = 'center';
+    ctx.fillText('tap to play again.', W / 2, H - 45);
+  }
+
+  ctx.restore();
+}
+
+function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+initStars();
+initBackground();
+gameLoop();
+</script>
+</body>
+</html>
