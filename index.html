@@ -16,8 +16,8 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --black:#0a0a0a;--true-black:#000;--white:#f2f0ec;--pure-white:#fff;
-  --cream:#e8e5df;--g100:#d4d1cb;--g200:#ccc9c4;--g400:#a09d98;
-  --g600:#7a7772;--g800:#1e1d1b;--g900:#141312;--spot:#d4b856;
+  --cream:#e8e5df;--g100:#d4d1cb;--g200:#b0ada7;--g400:#7a7772;
+  --g600:#4a4844;--g800:#1e1d1b;--g900:#141312;--spot:#d4b856;
   --font-logo:'Montserrat',sans-serif;--font-mono:'Space Mono',monospace;
   --font-display:'Montserrat',sans-serif;
   --ease-expo:cubic-bezier(.16,1,.3,1);--ease-io:cubic-bezier(.76,0,.24,1);
@@ -41,7 +41,7 @@ img{display:block;max-width:100%;height:auto}
 .nav>*{pointer-events:auto}
 .nav-logo{font-family:var(--font-logo);font-weight:500;font-size:13px;letter-spacing:-.02em;text-transform:lowercase;mix-blend-mode:difference;color:var(--pure-white)}
 .nav-center{display:flex;gap:28px;list-style:none;mix-blend-mode:difference}
-.nav-center a{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:lowercase;color:var(--pure-white);opacity:.7;transition:opacity .3s}
+.nav-center a{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:lowercase;color:var(--pure-white);opacity:.5;transition:opacity .3s}
 .nav-center a:hover{opacity:1}
 .nav-right{display:flex;align-items:center;gap:12px}
 .store-btn{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:lowercase;padding:10px 20px;background:var(--spot);color:var(--true-black);transition:all .3s var(--ease-expo)}
@@ -124,9 +124,7 @@ img{display:block;max-width:100%;height:auto}
 .products-track{display:flex;gap:28px;padding:16px 48px 32px;height:100%;align-items:flex-start;will-change:transform}
 
 .pcard{flex-shrink:0;width:clamp(260px,28vw,380px);opacity:0;transform:translateY(50px)}
-.pcard-img{position:relative;aspect-ratio:3/4;background:var(--spot);overflow:hidden;border:1px solid rgba(255,255,255,.03);transition:border-color .4s;background-size:cover;background-position:center}
-.pcard-img::before{content:'';position:absolute;inset:0;background:rgba(212,184,86,.45);z-index:1;pointer-events:none}
-.pcard-img img{position:relative;z-index:2}
+.pcard-img{position:relative;aspect-ratio:3/4;background:var(--spot);overflow:hidden;border:1px solid rgba(255,255,255,.03);transition:border-color .4s}
 .pcard:hover .pcard-img{border-color:rgba(212,184,86,.4)}
 .pcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease-expo)}
 .pcard:hover .pcard-img img{transform:scale(1.03)}
@@ -668,7 +666,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
       </div>
     </div>
     <!-- BOTTOM RIGHT — GAME (LOOP) -->
-    <div class="v-cell sp" style="cursor:pointer" onclick="window.open('https://thatswassupps.github.io/floppy_crops/','_blank')">
+    <div class="v-cell sp" style="cursor:pointer" onclick="window.open('https://thatswassupps.com/floppy_crops','_blank')">
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;height:100%;text-align:center">
         <div class="v-cell-text" style="font-size:16px;font-weight:700;line-height:1.3">play the game.</div>
         <div style="font-family:var(--font-mono);font-size:10px;color:var(--true-black);opacity:.7;line-height:1.4">top score each month gets clothes</div>
@@ -1080,11 +1078,6 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
       return 'core';
     }
 
-    // ── Merch background images ──
-    var merchBgBase = 'https://cdn.jsdelivr.net/gh/thatswassupps/website_images@main/merch_backgrounds/';
-    var merchBgCount = 7;
-    var merchBgIndex = 0;
-
     // ── Build product card ──
     function buildProductCard(product) {
       var firstImage = product.images.length > 0 ? product.images[0].src : '';
@@ -1098,10 +1091,6 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
         variantTitle = product.options.map(function(o) { return o.values && o.values[0] ? (o.values[0].value || o.values[0]) : ''; }).join(' / ');
       }
 
-      // Cycle through background images
-      merchBgIndex++;
-      var bgUrl = merchBgBase + ((merchBgIndex % merchBgCount) + 1) + '.jpg';
-
       var badge = getBadge(product);
       var card = document.createElement('div');
       card.className = 'pcard';
@@ -1111,7 +1100,7 @@ body.pdp-open .footer{transition:transform .5s cubic-bezier(.76,0,.24,1) .22s,op
       if (comparePrice > price) priceHTML = '<span style="text-decoration:line-through;color:var(--g600);margin-right:6px">$' + comparePrice.toFixed(0) + '</span>';
       priceHTML += '$' + price.toFixed(0);
 
-      card.innerHTML = '<div class="pcard-img" style="background-image:url(\'' + bgUrl + '\')"><img src="' + firstImage + '" alt="' + product.title + '" loading="lazy"><div class="pcard-badge">' + badge + '</div></div>' +
+      card.innerHTML = '<div class="pcard-img"><img src="' + firstImage + '" alt="' + product.title + '" loading="lazy"><div class="pcard-badge">' + badge + '</div></div>' +
         '<div class="pcard-info"><div><div class="pcard-name">' + product.title.toLowerCase() + '</div><div class="pcard-variant">' + variantTitle.toLowerCase() + '</div></div><div class="pcard-price">' + priceHTML + '</div></div>' +
         '<button class="pcard-atc">add to cart</button>';
 
