@@ -122,14 +122,15 @@ async function fetchLeaderboard() {
 // ── DISCORD WEBHOOK ──
 var DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1490476408001134622/dBJeAGdauodja-UJO9rmTZPJFAelu5oN3dmEBY4MjrqUae0jZErAmGDjjE3ce4lJlHDw';
 
-function sendDiscordAlert(playerName, scoreVal, type) {
-  var emoji = type === 'alltime' ? '👑' : '🗓';
-  var label = type === 'alltime' ? 'ALL-TIME HIGH SCORE' : 'MONTHLY HIGH SCORE';
+function sendDiscordAlert(playerName, scoreVal, type, rank) {
+  var emoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : '🥉';
+  var label = type === 'alltime' ? 'ALL-TIME' : 'MONTHLY';
+  var rankLabel = rank === 1 ? '#1' : rank === 2 ? '#2' : '#3';
   var content = {
     embeds: [{
-      title: emoji + ' NEW ' + label + ' ' + emoji,
+      title: emoji + ' NEW ' + label + ' ' + rankLabel + ' ' + emoji,
       description: '**' + (playerName || 'anon').toLowerCase() + '** just dropped a **' + scoreVal + '** on floppy crops.',
-      color: type === 'alltime' ? 13874262 : 10070709,
+      color: rank === 1 ? 13874262 : rank === 2 ? 12632256 : 13467442,
       footer: { text: 'thatswassupps. the game.' },
       timestamp: new Date().toISOString()
     }]
@@ -145,9 +146,9 @@ async function submitScore(name, scoreVal) {
   if (submittingScore) return;
   submittingScore = true;
   try {
-    // Check current highs BEFORE submitting
-    var prevAllTime = leaderboardAllTime.length > 0 ? leaderboardAllTime[0].score : 0;
-    var prevMonthly = leaderboardMonthly.length > 0 ? leaderboardMonthly[0].score : 0;
+    // Check current top 3 BEFORE submitting
+    var allTimeTop3 = leaderboardAllTime.slice(0, 3).map(function(e) { return e.score; });
+    var monthlyTop3 = leaderboardMonthly.slice(0, 3).map(function(e) { return e.score; });
 
     await fetch(SUPABASE_URL + '/rest/v1/scores', {
       method: 'POST',
@@ -161,11 +162,23 @@ async function submitScore(name, scoreVal) {
     });
     scoreSubmitted = true;
 
-    // Send Discord alerts if records broken
-    if (scoreVal > prevAllTime) {
-      sendDiscordAlert(name, scoreVal, 'alltime');
-    } else if (scoreVal > prevMonthly) {
-      sendDiscordAlert(name, scoreVal, 'monthly');
+    // Check if score cracks top 3 all-time
+    var allTimeRank = 0;
+    for (var i = 0; i < 3; i++) {
+      if (scoreVal > (allTimeTop3[i] || 0)) { allTimeRank = i + 1; break; }
+    }
+    
+    // Check if score cracks top 3 monthly
+    var monthlyRank = 0;
+    for (var j = 0; j < 3; j++) {
+      if (scoreVal > (monthlyTop3[j] || 0)) { monthlyRank = j + 1; break; }
+    }
+
+    // Send alerts — prioritize all-time over monthly
+    if (allTimeRank > 0) {
+      sendDiscordAlert(name, scoreVal, 'alltime', allTimeRank);
+    } else if (monthlyRank > 0) {
+      sendDiscordAlert(name, scoreVal, 'monthly', monthlyRank);
     }
 
     fetchLeaderboard(); // refresh after submit
