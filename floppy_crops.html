@@ -37,6 +37,13 @@
 <body>
 <div id="gameWrapper">
   <canvas id="game"></canvas>
+  <button id="muteBtn" style="position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:20;padding:0">
+    <svg id="muteIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M19.07 4.93a10 10 0 010 14.14"/>
+      <path d="M15.54 8.46a5 5 0 010 7.07"/>
+    </svg>
+  </button>
   <input type="text" id="mobileNameInput" maxlength="12" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
     style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;opacity:0;pointer-events:none;z-index:10;
     font-family:'Montserrat',sans-serif;font-size:16px;background:#1a1a1a;color:#fff;border:1px solid #d4b856;padding:10px;text-align:center">
@@ -83,6 +90,118 @@ frameSrcs.forEach((src, i) => {
   };
   img.src = src;
 });
+
+// ── CUSTOM BUILDING & GROUND ASSETS ──
+const assetBase = 'https://raw.githubusercontent.com/thatswassupps/index/refs/heads/main/floppy_crops/assets/';
+const obstacleImg = new Image();
+obstacleImg.crossOrigin = 'anonymous';
+obstacleImg.src = assetBase + 'building_02/building_02.png';
+const obstacleBase = new Image();
+obstacleBase.crossOrigin = 'anonymous';
+obstacleBase.src = assetBase + 'building_02/building_02_bottom.png';
+const streetImg = new Image();
+streetImg.crossOrigin = 'anonymous';
+streetImg.src = assetBase + 'ground/street.jpg';
+
+// ── BACKGROUND BUILDINGS ──
+const bgBuildingImgs = [];
+for (var bi = 1; bi <= 14; bi++) {
+  var img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = assetBase + 'background_buildings/building_' + String(bi).padStart(2, '0') + '.png';
+  bgBuildingImgs.push(img);
+}
+
+// ── CLOUDS ──
+const cloudImgs = [];
+for (var ci = 1; ci <= 5; ci++) {
+  var cimg = new Image();
+  cimg.crossOrigin = 'anonymous';
+  cimg.src = assetBase + 'clouds/cloud_' + String(ci).padStart(2, '0') + '.png';
+  cloudImgs.push(cimg);
+}
+
+// ── STREET SIGNS ──
+const signImg = new Image();
+signImg.crossOrigin = 'anonymous';
+signImg.src = assetBase + 'signs/sign_01.png';
+
+var signInstances = [];
+function initSigns() {
+  signInstances = [];
+  for (var i = 0; i < 3; i++) {
+    signInstances.push({
+      baseX: W * 0.8 + i * (W * 1.2 + Math.random() * W * 0.5),
+      speed: 0.8
+    });
+  }
+}
+initSigns();
+
+// ── CARS ──
+const carImg = new Image();
+carImg.crossOrigin = 'anonymous';
+carImg.src = assetBase + 'cars/car_01.png';
+
+var carInstances = [];
+var carSpawnTimer = 0;
+function spawnCar() {
+  carInstances.push({
+    x: -150,
+    speed: 0.8 + Math.random() * 0.6,
+    scale: 0.35 + Math.random() * 0.15
+  });
+}
+
+// Generate cloud instances — random positions, sizes, speeds
+var cloudInstances = [];
+function initClouds() {
+  cloudInstances = [];
+  // Always add one big TW cloud (cloud_05 = index 4)
+  cloudInstances.push({
+    imgIndex: 4,
+    x: W * 0.6 + Math.random() * W * 0.5,
+    y: 40 + Math.random() * 80,
+    scale: 1.8 + Math.random() * 0.5,
+    speed: 0.08,
+    opacity: 0.85
+  });
+  // Rest are random
+  for (var i = 0; i < 13; i++) {
+    cloudInstances.push({
+      imgIndex: Math.floor(Math.random() * 4), // 0-3 only, keep 05 special
+      x: Math.random() * W * 2,
+      y: 20 + Math.random() * (H * 0.45),
+      scale: 0.6 + Math.random() * 1.2,
+      speed: 0.1 + Math.random() * 0.3,
+      opacity: 0.6 + Math.random() * 0.4
+    });
+  }
+}
+initClouds();
+
+// Generate background building instances — spaced out skyline, no adjacent duplicates
+var bgBuildingInstances = [];
+function initBgBuildings() {
+  bgBuildingInstances = [];
+  var bx = 0;
+  var lastIdx = -1;
+  while (bx < W * 3) {
+    var idx = Math.floor(Math.random() * bgBuildingImgs.length);
+    while (idx === lastIdx && bgBuildingImgs.length > 1) {
+      idx = Math.floor(Math.random() * bgBuildingImgs.length);
+    }
+    lastIdx = idx;
+    bgBuildingInstances.push({
+      imgIndex: idx,
+      baseX: bx,
+      scale: 0.25 + Math.random() * 0.1,
+      speed: 0.2 + Math.random() * 0.1
+    });
+    bx += 40 + Math.random() * 50;
+  }
+}
+initBgBuildings();
 
 // ── SUPABASE LEADERBOARD ──
 const SUPABASE_URL = 'https://dpntjpvpzgsjhfsmfwix.supabase.co';
@@ -196,8 +315,11 @@ var bgMusic = new Audio('https://cdn.jsdelivr.net/gh/thatswassupps/audio@main/1.
 bgMusic.loop = true;
 bgMusic.volume = 0.4;
 var musicStarted = false;
+var isMuted = false;
+
 function startMusic() {
   if (musicStarted) return;
+  if (isMuted) return;
   bgMusic.play().then(function() { musicStarted = true; }).catch(function(){});
 }
 
@@ -205,9 +327,30 @@ function startMusic() {
 var sfxHat = new Audio('https://cdn.jsdelivr.net/gh/thatswassupps/audio@main/sound_effect_01.wav');
 sfxHat.volume = 0.6;
 function playHatSFX() {
+  if (isMuted) return;
   sfxHat.currentTime = 0;
   sfxHat.play().catch(function(){});
 }
+
+// ── MUTE BUTTON ──
+var muteBtn = document.getElementById('muteBtn');
+var muteIcon = document.getElementById('muteIcon');
+var svgUnmuted = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/>';
+var svgMuted = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+
+muteBtn.addEventListener('click', function(e) {
+  e.stopPropagation();
+  isMuted = !isMuted;
+  if (isMuted) {
+    bgMusic.pause();
+    muteIcon.innerHTML = svgMuted;
+    muteBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+  } else {
+    if (musicStarted) bgMusic.play().catch(function(){});
+    muteIcon.innerHTML = svgUnmuted;
+    muteBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+  }
+});
 
 let gameState = 'menu';
 let score = 0;
@@ -225,16 +368,28 @@ const bird = {
 
 let pipes = [];
 const pipeW = 68;
-const pipeGap = 155;
-const pipeSpeed = 2.3;
 let pipeTimer = 0;
-const pipeInterval = 95;
+
+// ── PROGRESSIVE DIFFICULTY (disabled for now — flat original mechanics) ──
+var currentLevel = 0;
+var difficultyLevels = [
+  { gap: 155, speed: 2.3, interval: 95, label: 'level 1', scoreThreshold: 0 }
+];
+
+function getDifficulty() {
+  return difficultyLevels[0];
+}
+var levelChangeTimer = 0;
+
+// Convenience getters
+function getPipeGap() { return getDifficulty().gap; }
+function getPipeSpeed() { return getDifficulty().speed; }
+function getPipeInterval() { return getDifficulty().interval; }
 
 let bucketHats = [];
 let particles = [];
 let bgElements = [];
 let bgScroll = 0;
-let stars = [];
 
 const graffitiTags = [
   'mmk.', 'prolly not.', 'fine.', 'sure.', 'yup.',
@@ -251,125 +406,91 @@ const deathMsgs = [
 ];
 const graffitiColors = ['#ff4444', '#44aaff', '#ffaa00', '#44ff88', '#ff44ff', '#ffffff'];
 
-function initStars() {
-  stars = [];
-  for (let i = 0; i < 40; i++) {
-    stars.push({
-      x: Math.random() * W, y: Math.random() * H * 0.5,
-      brightness: 0.25 + Math.random() * 0.5,
-      twinkleSpeed: 0.01 + Math.random() * 0.03,
-      twinkleOffset: Math.random() * Math.PI * 2
-    });
-  }
-}
-
-function initBackground() {
-  bgElements = [];
-  for (let i = 0; i < 8; i++) {
-    const numWindows = Math.floor(Math.random() * 8) + 2;
-    const windowStates = [];
-    for (let wy = 0; wy < numWindows; wy++) {
-      for (let wx = 0; wx < 3; wx++) {
-        windowStates.push({ lit: Math.random() > 0.4, brightness: 0.35 + Math.random() * 0.45 });
-      }
-    }
-    bgElements.push({
-      type: 'building', x: i * 120 + Math.random() * 60,
-      w: 50 + Math.random() * 70, h: 120 + Math.random() * 200,
-      shade: 80 + Math.random() * 40, windows: numWindows, windowStates, speed: 0.3
-    });
-  }
-  for (let i = 0; i < 10; i++) {
-    bgElements.push({
-      type: 'graffiti', x: Math.random() * W * 2, y: H - 120 - Math.random() * 150,
-      text: graffitiTags[Math.floor(Math.random() * graffitiTags.length)],
-      color: graffitiColors[Math.floor(Math.random() * graffitiColors.length)],
-      size: 14 + Math.random() * 12, rotation: (Math.random() - 0.5) * 0.3, speed: 0.5
-    });
-  }
-  for (let i = 0; i < 3; i++) {
-    bgElements.push({ type: 'bgDumpster', x: Math.random() * W * 2, y: H - 85, speed: 0.5 });
-  }
-}
-
 function wrapX(rawX, range) { return ((rawX % range) + range) % range; }
 
 function drawBackground() {
+  // ── Blue/teal sky gradient ──
   const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
-  skyGrad.addColorStop(0, '#6e7b8b');
-  skyGrad.addColorStop(0.4, '#8895a5');
-  skyGrad.addColorStop(0.8, '#9aa5b4');
-  skyGrad.addColorStop(1, '#7a8595');
+  skyGrad.addColorStop(0, '#4A90D9');
+  skyGrad.addColorStop(0.4, '#5BA0E0');
+  skyGrad.addColorStop(0.7, '#6DB8E8');
+  skyGrad.addColorStop(1, '#87CEEB');
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, W, H);
 
-  stars.forEach(s => {
-    const twinkle = Math.sin(frameCount * s.twinkleSpeed + s.twinkleOffset) * 0.15;
-    const alpha = Math.max(0.05, s.brightness + twinkle);
-    ctx.fillStyle = `rgba(255,255,240,${alpha})`;
-    ctx.fillRect(s.x, s.y, 1.5, 1.5);
+  // ── Clouds — drifting across the sky ──
+  cloudInstances.forEach(function(cloud) {
+    var cimg = cloudImgs[cloud.imgIndex];
+    if (!cimg || !cimg.complete || !cimg.naturalWidth) return;
+    cloud.x -= cloud.speed;
+    // Wrap around when off screen
+    var drawW = cimg.naturalWidth * cloud.scale;
+    var drawH = cimg.naturalHeight * cloud.scale;
+    if (cloud.x < -drawW) cloud.x = W + drawW + Math.random() * 100;
+    ctx.globalAlpha = cloud.opacity;
+    ctx.drawImage(cimg, cloud.x, cloud.y, drawW, drawH);
+    ctx.globalAlpha = 1;
   });
 
-  bgElements.forEach(el => {
-    if (el.type === 'building') {
-      const bx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
-      ctx.fillStyle = `rgb(${el.shade}, ${el.shade}, ${el.shade + 5})`;
-      ctx.fillRect(bx, H - 70 - el.h, el.w, el.h);
-      let idx = 0;
-      for (let wy = 0; wy < el.windows; wy++) {
-        for (let wx = 0; wx < 3; wx++) {
-          const ws = el.windowStates[idx++];
-          ctx.fillStyle = ws.lit ? `rgba(255,220,100,${ws.brightness})` : 'rgba(0,0,0,0.4)';
-          ctx.fillRect(bx + 8 + wx * (el.w / 3.5), H - 70 - el.h + 15 + wy * 25, 8, 12);
-        }
-      }
-    }
+  // ── Background buildings — distant skyline, dimmed ──
+  var wrapRange = W * 3;
+  ctx.save();
+  ctx.filter = 'brightness(0.8) saturate(0.8)';
+  bgBuildingInstances.forEach(function(b) {
+    var bimg = bgBuildingImgs[b.imgIndex];
+    if (!bimg || !bimg.complete || !bimg.naturalWidth) return;
+    var bx = wrapX(b.baseX - bgScroll * b.speed, wrapRange) - 100;
+    var s = b.scale || 0.3;
+    var drawW = bimg.naturalWidth * s;
+    var drawH = bimg.naturalHeight * s;
+    var by = H - 98 - drawH;
+    ctx.drawImage(bimg, bx, by, drawW, drawH);
   });
+  ctx.restore();
 
-  bgElements.forEach(el => {
+  // ── Graffiti tags — muted for now ──
+  /*
+  bgElements.forEach(function(el) {
     if (el.type === 'graffiti') {
-      const gx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
+      var gx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
       ctx.save();
       ctx.translate(gx, el.y);
       ctx.rotate(el.rotation);
-      ctx.font = `900 ${el.size}px Montserrat`;
+      ctx.font = '900 ' + el.size + 'px Montserrat';
       ctx.fillStyle = el.color + 'AA';
       ctx.fillText(el.text, 0, 0);
       ctx.restore();
     }
   });
+  */
 
-  bgElements.forEach(el => {
-    if (el.type === 'bgDumpster') {
-      const dx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
-      drawMiniDumpster(dx, el.y, 0.5);
-    }
-  });
-
-  ctx.fillStyle = '#5a5a65';
-  ctx.fillRect(0, H - 70, W, 70);
-  ctx.fillStyle = '#6a6a75';
-  ctx.fillRect(0, H - 70, W, 3);
-
-  for (let i = 0; i < 15; i++) {
-    const lx = wrapX(i * 40 - bgScroll * 1.5, W + 40) - 20;
-    ctx.fillStyle = '#6a6a72';
-    ctx.fillRect(lx, H - 50, 20, 1);
+  // ── Street signs — scrolling along the ground ──
+  if (signImg.complete && signImg.naturalWidth > 0) {
+    var signScale = 0.45;
+    var signW = signImg.naturalWidth * signScale;
+    var signH = signImg.naturalHeight * signScale;
+    var signWrapRange = W * 4;
+    signInstances.forEach(function(s) {
+      var sx = wrapX(s.baseX - bgScroll * s.speed, signWrapRange) - signW;
+      ctx.drawImage(signImg, sx, H - 98 - signH + 4, signW, signH);
+    });
   }
-}
 
-function drawMiniDumpster(x, y, scale) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(scale, scale);
-  ctx.fillStyle = '#5a8a5a';
-  ctx.fillRect(-25, -30, 50, 30);
-  ctx.fillStyle = '#4a7a4a';
-  ctx.fillRect(-25, -30, 50, 5);
-  ctx.fillStyle = '#6a9a6a';
-  ctx.fillRect(-20, -25, 3, 20);
-  ctx.fillRect(17, -25, 3, 20);
-  ctx.restore();
+  // ── Ground — custom street asset, tiled and scrolling ──
+  if (streetImg.complete && streetImg.naturalWidth > 0) {
+    var streetW = streetImg.naturalWidth;
+    var streetH = streetImg.naturalHeight;
+    var groundY = H - streetH;
+    var scrollX = wrapX(-bgScroll * 0.8, streetW);
+    for (var sx = -streetW + scrollX; sx < W + streetW; sx += streetW - 1) {
+      ctx.drawImage(streetImg, sx, groundY, streetW, streetH);
+    }
+  } else {
+    ctx.fillStyle = '#5a5a65';
+    ctx.fillRect(0, H - 98, W, 98);
+    ctx.fillStyle = '#6a6a75';
+    ctx.fillRect(0, H - 98, W, 3);
+  }
 }
 
 function drawHoodie(x, y, rotation, spriteIdx) {
@@ -404,72 +525,48 @@ function getCurrentFrame() {
 
 function drawPipe(pipe) {
   const topH = pipe.topH;
-  const bottomY = pipe.topH + pipeGap;
-  const bottomH = H - 70 - bottomY;
+  const gap = pipe.gap || getPipeGap();
+  const bottomY = pipe.topH + gap;
+  const bottomH = H - 98 - bottomY;
+  var ready = obstacleImg.complete && obstacleImg.naturalWidth > 0;
+  var scale = pipeW / obstacleImg.naturalWidth;
+  var imgH = obstacleImg.naturalHeight * scale;
 
-  ctx.fillStyle = '#707080';
-  ctx.fillRect(pipe.x, 0, pipeW, topH);
-  for (let row = 0; row < topH / 12; row++) {
-    for (let col = 0; col < 3; col++) {
-      const bx = pipe.x + 4 + col * 22 + (row % 2 === 0 ? 0 : 11);
-      const by = row * 12 + 2;
-      if (by < topH - 5) {
-        ctx.fillStyle = '#7a7a8a';
-        ctx.fillRect(bx, by, 18, 9);
-        ctx.fillStyle = '#707080';
-        ctx.fillRect(bx, by, 18, 1);
-      }
-    }
+  // ── TOP OBSTACLE (hangs from ceiling) ──
+  // Show right-side up, bottom of building visible at gap edge
+  if (ready) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(pipe.x, 0, pipeW, topH);
+    ctx.clip();
+    // Position so the bottom of the image aligns with the gap edge
+    ctx.drawImage(obstacleImg, pipe.x, topH - imgH, pipeW, imgH);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#707080';
+    ctx.fillRect(pipe.x, 0, pipeW, topH);
   }
-  ctx.fillStyle = '#8888998';
-  ctx.fillRect(pipe.x - 5, topH - 18, pipeW + 10, 18);
-  ctx.fillStyle = '#999aaa';
-  ctx.fillRect(pipe.x - 5, topH - 18, pipeW + 10, 3);
-  ctx.fillStyle = '#777788';
-  ctx.fillRect(pipe.x - 5, topH - 3, pipeW + 10, 3);
-  ctx.fillStyle = '#aaaabb';
-  ctx.beginPath(); ctx.arc(pipe.x + 3, topH - 9, 3, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(pipe.x + pipeW - 3, topH - 9, 3, 0, Math.PI * 2); ctx.fill();
 
-  // ── BOTTOM OBSTACLE — stacked shipping boxes ──
-  ctx.fillStyle = '#8a7a60';
-  ctx.fillRect(pipe.x, bottomY, pipeW, bottomH);
-  // Individual boxes
-  for (let row = 0; row < bottomH / 36; row++) {
-    const dy = bottomY + row * 36;
-    // Box body
-    ctx.fillStyle = row % 2 === 0 ? '#9a8a6a' : '#8a7a5a';
-    ctx.fillRect(pipe.x + 1, dy + 1, pipeW - 2, 33);
-    // Box tape/seam line
-    ctx.fillStyle = '#b0a080';
-    ctx.fillRect(pipe.x + pipeW / 2 - 1, dy + 1, 2, 33);
-    // Box flap lines
-    ctx.fillStyle = '#7a6a50';
-    ctx.fillRect(pipe.x + 1, dy + 1, pipeW - 2, 1);
-    ctx.fillRect(pipe.x + 1, dy + 10, pipeW - 2, 1);
-    // Brand mark on some boxes
-    if (row % 3 === 0) {
-      ctx.fillStyle = 'rgba(212,184,86,0.5)';
-      ctx.font = '700 6px Montserrat';
-      ctx.textAlign = 'center';
-      ctx.fillText('twsp.', pipe.x + pipeW / 2, dy + 24);
+  // ── BOTTOM OBSTACLE (sits on ground) ──
+  // Show right-side up, top of building visible at gap edge
+  if (ready) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(pipe.x, bottomY, pipeW, bottomH);
+    ctx.clip();
+    // Position so the top of the image aligns with the gap edge
+    ctx.drawImage(obstacleImg, pipe.x, bottomY, pipeW, imgH);
+    ctx.restore();
+    // Draw base piece at the ground level on top
+    if (obstacleBase.complete && obstacleBase.naturalWidth > 0) {
+      var baseScale = pipeW / obstacleBase.naturalWidth;
+      var baseH = obstacleBase.naturalHeight * baseScale;
+      ctx.drawImage(obstacleBase, pipe.x, H - 98 - baseH, pipeW, baseH);
     }
+  } else {
+    ctx.fillStyle = '#8a7a60';
+    ctx.fillRect(pipe.x, bottomY, pipeW, bottomH);
   }
-  // Top cap — open box flaps
-  ctx.fillStyle = '#a09070';
-  ctx.fillRect(pipe.x - 4, bottomY, pipeW + 8, 14);
-  ctx.fillStyle = '#b0a080';
-  ctx.fillRect(pipe.x - 4, bottomY, pipeW + 8, 2);
-  ctx.fillStyle = '#8a7a60';
-  ctx.fillRect(pipe.x - 4, bottomY + 12, pipeW + 8, 2);
-  // Flap shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.beginPath();
-  ctx.moveTo(pipe.x - 4, bottomY);
-  ctx.lineTo(pipe.x + pipeW / 2, bottomY - 8);
-  ctx.lineTo(pipe.x + pipeW + 4, bottomY);
-  ctx.closePath();
-  ctx.fill();
 
   if (pipe.tag) {
     ctx.save();
@@ -543,9 +640,10 @@ function checkCollision() {
   const by = bird.y - bird.h * 0.3;
   const bw = bird.w * 0.6;
   const bh = bird.h * 0.6;
-  if (bird.y + bird.h / 2 > H - 70 || bird.y - bird.h / 2 < 0) return true;
+  if (bird.y + bird.h / 2 > H - 98 || bird.y - bird.h / 2 < 0) return true;
   for (const pipe of pipes) {
-    const bottomY = pipe.topH + pipeGap;
+    const gap = pipe.gap || getPipeGap();
+    const bottomY = pipe.topH + gap;
     if (bx + bw > pipe.x && bx < pipe.x + pipeW) {
       if (by < pipe.topH || by + bh > bottomY) return true;
     }
@@ -573,6 +671,7 @@ function jump() {
     bird.vy = bird.jumpForce; bird.flapTimer = 15;
     pipes = []; bucketHats = []; particles = [];
     score = 0; pipeTimer = 60;
+    currentLevel = 0; levelChangeTimer = 0;
     bird.y = H * 0.45; bird.trail = [];
     scoreSubmitted = false;
     playerName = '';
@@ -705,10 +804,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 function spawnPipe() {
-  const minTop = 80, maxTop = H - 70 - pipeGap - 80;
+  var gap = getPipeGap();
+  const minTop = 80, maxTop = H - 98 - gap - 80;
   const topH = minTop + Math.random() * (maxTop - minTop);
   pipes.push({
-    x: W + 10, topH, scored: false,
+    x: W + 10, topH, gap: gap, scored: false,
     tag: Math.random() > 0.5 ? graffitiTags[Math.floor(Math.random() * graffitiTags.length)] : null,
     tagColor: graffitiColors[Math.floor(Math.random() * graffitiColors.length)],
     tagSize: 8 + Math.random() * 6,
@@ -717,14 +817,15 @@ function spawnPipe() {
   if (Math.random() > 0.4) {
     bucketHats.push({
       x: W + 10 + pipeW / 2,
-      y: topH + pipeGap / 2 + (Math.random() - 0.5) * 40
+      y: topH + gap / 2 + (Math.random() - 0.5) * 40
     });
   }
 }
 
 function update() {
   frameCount++;
-  bgScroll += gameState === 'playing' ? pipeSpeed : 0.5;
+  var speed = gameState === 'playing' ? getPipeSpeed() : 0.5;
+  bgScroll += speed;
 
   if (gameState === 'playing') {
     bird.vy += bird.gravity; bird.y += bird.vy;
@@ -734,15 +835,16 @@ function update() {
     if (bird.trail.length > 8) bird.trail.shift();
     bird.trail.forEach(t => t.life -= 0.12);
     pipeTimer++;
-    if (pipeTimer >= pipeInterval) { pipeTimer = 0; spawnPipe(); }
+    if (pipeTimer >= getPipeInterval()) { pipeTimer = 0; spawnPipe(); }
     pipes.forEach(pipe => {
-      pipe.x -= pipeSpeed;
+      pipe.x -= speed;
       if (!pipe.scored && pipe.x + pipeW < bird.x) { pipe.scored = true; score++; }
     });
     pipes = pipes.filter(p => p.x > -pipeW - 20);
-    bucketHats.forEach(hat => hat.x -= pipeSpeed);
+    bucketHats.forEach(hat => hat.x -= speed);
     bucketHats = bucketHats.filter(h => h.x > -30);
     checkBucketHats();
+    if (levelChangeTimer > 0) levelChangeTimer--;
     if (checkCollision()) {
       gameState = 'dead';
       bird.deathFrame = frameCount;
@@ -763,10 +865,23 @@ function update() {
   if (gameState === 'dead') {
     bird.vy += bird.gravity * 0.5; bird.y += bird.vy;
     bird.rotation += 0.1;
-    if (bird.y > H - 70) bird.y = H - 70;
+    if (bird.y > H - 98) bird.y = H - 98;
   }
 
   if (shakeTimer > 0) { shakeTimer--; shakeIntensity *= 0.85; }
+  // Update cars
+  if (carImg.complete && carImg.naturalWidth > 0) {
+    carSpawnTimer++;
+    if (carSpawnTimer > 400 + Math.random() * 500 && carInstances.length < 1) {
+      carSpawnTimer = 0;
+      spawnCar();
+    }
+    for (var ci = carInstances.length - 1; ci >= 0; ci--) {
+      carInstances[ci].x += carInstances[ci].speed;
+      if (carInstances[ci].x > W + 200) carInstances.splice(ci, 1);
+    }
+  }
+
   updateParticles();
 }
 
@@ -778,6 +893,15 @@ function draw() {
   drawBackground();
   pipes.forEach(drawPipe);
   bucketHats.forEach(drawBucketHat);
+
+  // ── Cars — drawn on top of everything at street level ──
+  if (carImg.complete && carImg.naturalWidth > 0) {
+    carInstances.forEach(function(car) {
+      var cw = carImg.naturalWidth * car.scale;
+      var ch = carImg.naturalHeight * car.scale;
+      ctx.drawImage(carImg, car.x, H - 98 - ch + 24, cw, ch);
+    });
+  }
 
   bird.trail.forEach(t => {
     if (t.life > 0) {
@@ -791,61 +915,125 @@ function draw() {
   drawParticles();
 
   if (gameState === 'playing') {
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.font = '900 36px Montserrat';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.font = '900 42px Montserrat';
     ctx.textAlign = 'center';
+    // Score shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillText(score, W / 2 + 2, 62);
+    ctx.fillStyle = '#ffffff';
     ctx.fillText(score, W / 2, 60);
+
+    // Level change notification
+    if (levelChangeTimer > 0) {
+      var alpha = Math.min(1, levelChangeTimer / 20);
+      ctx.fillStyle = 'rgba(0,0,0,' + (alpha * 0.4) + ')';
+      ctx.font = '700 16px Montserrat';
+      ctx.fillText(getDifficulty().label + '.', W / 2 + 1, 91);
+      ctx.fillStyle = 'rgba(212,184,86,' + alpha + ')';
+      ctx.fillText(getDifficulty().label + '.', W / 2, 90);
+    }
   }
 
   if (gameState === 'menu') {
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 22px Montserrat';
     ctx.textAlign = 'center';
-    ctx.fillText('thatswassupps.', W / 2, H * 0.2);
-    ctx.font = '400 13px Montserrat';
-    ctx.fillStyle = '#e0e0e0';
-    ctx.fillText('the game.', W / 2, H * 0.2 + 24);
+
+    // Title — big and bold with shadow
+    ctx.font = '900 32px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillText('thatswassupps.', W / 2 + 2, H * 0.18 + 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('thatswassupps.', W / 2, H * 0.18);
+
+    // Subtitle
+    ctx.font = '700 16px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillText('the game.', W / 2 + 1, H * 0.18 + 30);
+    ctx.fillStyle = '#cccccc';
+    ctx.fillText('the game.', W / 2, H * 0.18 + 28);
+
     const menuFrame = Math.floor((frameCount / 20) % 4);
     drawHoodie(bird.x, bird.y, bird.rotation, menuFrame);
-    ctx.fillStyle = '#ddd';
-    ctx.font = '400 12px Montserrat';
-    ctx.fillText('tap or press space.', W / 2, H * 0.72);
-    ctx.fillText("or don't. whatever.", W / 2, H * 0.72 + 20);
+
+    // Play prompt
+    ctx.font = '700 16px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillText('tap or press space.', W / 2 + 1, H * 0.70 + 1);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('tap or press space.', W / 2, H * 0.70);
+
+    ctx.font = '400 13px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillText("or don't. whatever.", W / 2 + 1, H * 0.70 + 24);
+    ctx.fillStyle = '#bbbbbb';
+    ctx.fillText("or don't. whatever.", W / 2, H * 0.70 + 22);
+
+    // High score
     if (highScore > 0) {
-      ctx.fillStyle = '#ccc';
-      ctx.font = '400 11px Montserrat';
-      ctx.fillText(`best: ${highScore}. cool.`, W / 2, H * 0.82);
+      ctx.font = '700 14px Montserrat';
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillText('best: ' + highScore + '. cool.', W / 2 + 1, H * 0.80 + 1);
+      ctx.fillStyle = '#dddddd';
+      ctx.fillText('best: ' + highScore + '. cool.', W / 2, H * 0.80);
     }
+
+    // Leaderboard champ
     if (leaderboardAllTime.length > 0) {
+      ctx.font = '700 14px Montserrat';
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      var champText = '\u{1F451} ' + leaderboardAllTime[0].name.toLowerCase() + ': ' + leaderboardAllTime[0].score;
+      ctx.fillText(champText, W / 2 + 1, H * 0.85 + 1);
       ctx.fillStyle = '#d4b856';
-      ctx.font = '700 10px Montserrat';
-      ctx.fillText('👑 ' + leaderboardAllTime[0].name.toLowerCase() + ': ' + leaderboardAllTime[0].score, W / 2, H * 0.86);
+      ctx.fillText(champText, W / 2, H * 0.85);
     }
-    ctx.fillStyle = '#bbb';
-    ctx.font = '400 9px Montserrat';
+
+    // Instructions
+    ctx.font = '700 12px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillText('collect bucket hats. avoid stuff.', W / 2 + 1, H * 0.92 + 1);
+    ctx.fillStyle = '#aaaaaa';
     ctx.fillText('collect bucket hats. avoid stuff.', W / 2, H * 0.92);
-    ctx.fillText('pretty self explanatory.', W / 2, H * 0.92 + 14);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillText('pretty self explanatory.', W / 2 + 1, H * 0.92 + 18);
+    ctx.fillStyle = '#999999';
+    ctx.fillText('pretty self explanatory.', W / 2, H * 0.92 + 16);
   }
 
   if (gameState === 'dead') {
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 28px Montserrat';
     ctx.textAlign = 'center';
+
+    // Score
+    ctx.font = '900 48px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillText(score, W / 2 + 2, H * 0.35 + 2);
+    ctx.fillStyle = '#ffffff';
     ctx.fillText(score, W / 2, H * 0.35);
-    ctx.font = '400 14px Montserrat';
-    ctx.fillStyle = '#e0e0e0';
-    ctx.fillText(currentDeathMsg, W / 2, H * 0.35 + 30);
+
+    // Death message
+    ctx.font = '700 18px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillText(currentDeathMsg, W / 2 + 1, H * 0.35 + 36);
+    ctx.fillStyle = '#cccccc';
+    ctx.fillText(currentDeathMsg, W / 2, H * 0.35 + 34);
+
     if (score > 0 && score === highScore) {
-      ctx.fillStyle = '#ddd';
-      ctx.font = '400 11px Montserrat';
-      ctx.fillText('new best. sick.', W / 2, H * 0.35 + 55);
+      ctx.font = '700 14px Montserrat';
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillText('new best. sick.', W / 2 + 1, H * 0.35 + 62);
+      ctx.fillStyle = '#d4b856';
+      ctx.fillText('new best. sick.', W / 2, H * 0.35 + 60);
     }
-    ctx.fillStyle = '#ccc';
-    ctx.font = '400 11px Montserrat';
+
+    // Continue prompt
+    ctx.font = '700 14px Montserrat';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillText('tap to continue.', W / 2 + 1, H * 0.65 + 1);
+    ctx.fillStyle = '#dddddd';
     ctx.fillText('tap to continue.', W / 2, H * 0.65);
   }
 
@@ -860,13 +1048,13 @@ function draw() {
     ctx.fillText(score, W / 2, H * 0.22);
 
     ctx.font = '400 12px Montserrat';
-    ctx.fillStyle = '#ddd';
+    ctx.fillStyle = '#888';
     ctx.fillText(currentDeathMsg, W / 2, H * 0.22 + 24);
 
     ctx.fillStyle = '#d4b856';
     ctx.font = '700 14px Montserrat';
     ctx.fillText('enter your name.', W / 2, H * 0.38);
-    ctx.fillStyle = '#ccc';
+    ctx.fillStyle = '#666';
     ctx.font = '400 10px Montserrat';
     ctx.fillText('or don\'t. we\'ll call you anon.', W / 2, H * 0.38 + 20);
 
@@ -897,7 +1085,7 @@ function draw() {
 
     // Skip button
     var skipY = btnY + 48;
-    ctx.fillStyle = '#bbb';
+    ctx.fillStyle = '#555';
     ctx.font = '400 10px Montserrat';
     ctx.fillText('skip →', W / 2, skipY);
 
@@ -921,16 +1109,16 @@ function draw() {
     var tabY = 75;
     var tabW = 100;
     // All-time tab
-    ctx.fillStyle = leaderboardTab === 'alltime' ? '#d4b856' : '#444';
+    ctx.fillStyle = leaderboardTab === 'alltime' ? '#d4b856' : '#333';
     ctx.fillRect(W / 2 - tabW - 4, tabY, tabW, 28);
-    ctx.fillStyle = leaderboardTab === 'alltime' ? '#000' : '#ddd';
+    ctx.fillStyle = leaderboardTab === 'alltime' ? '#000' : '#888';
     ctx.font = '700 9px Montserrat';
     ctx.fillText('all time', W / 2 - tabW / 2 - 4, tabY + 18);
 
     // Monthly tab
-    ctx.fillStyle = leaderboardTab === 'monthly' ? '#d4b856' : '#444';
+    ctx.fillStyle = leaderboardTab === 'monthly' ? '#d4b856' : '#333';
     ctx.fillRect(W / 2 + 4, tabY, tabW, 28);
-    ctx.fillStyle = leaderboardTab === 'monthly' ? '#000' : '#ddd';
+    ctx.fillStyle = leaderboardTab === 'monthly' ? '#000' : '#888';
     ctx.fillText('this month', W / 2 + tabW / 2 + 4, tabY + 18);
 
     canvas._tabAllTime = { x: W / 2 - tabW - 4, y: tabY, w: tabW, h: 28 };
@@ -941,11 +1129,11 @@ function draw() {
     var startY = tabY + 50;
 
     if (!leaderboardLoaded) {
-      ctx.fillStyle = '#ccc';
+      ctx.fillStyle = '#666';
       ctx.font = '400 11px Montserrat';
       ctx.fillText('loading...', W / 2, startY + 20);
     } else if (entries.length === 0) {
-      ctx.fillStyle = '#ccc';
+      ctx.fillStyle = '#666';
       ctx.font = '400 11px Montserrat';
       ctx.fillText('no scores yet. be the first.', W / 2, startY + 20);
     } else {
@@ -961,20 +1149,20 @@ function draw() {
         }
 
         // Rank
-        ctx.fillStyle = rankColors[i] || '#bbb';
+        ctx.fillStyle = rankColors[i] || '#555';
         ctx.font = '900 13px Montserrat';
         ctx.textAlign = 'left';
         ctx.fillText((i + 1) + '.', 55, rowY + 8);
 
         // Name
-        ctx.fillStyle = isTop3 ? '#fff' : '#e0e0e0';
+        ctx.fillStyle = isTop3 ? '#fff' : '#999';
         ctx.font = (isTop3 ? '700' : '400') + ' 12px Montserrat';
         ctx.textAlign = 'left';
         var displayN = (entry.name || 'anon').substring(0, 12).toLowerCase();
         ctx.fillText(displayN, 90, rowY + 8);
 
         // Score
-        ctx.fillStyle = isTop3 ? '#d4b856' : '#ddd';
+        ctx.fillStyle = isTop3 ? '#d4b856' : '#777';
         ctx.font = '700 13px Montserrat';
         ctx.textAlign = 'right';
         ctx.fillText(entry.score, W - 55, rowY + 8);
@@ -983,13 +1171,13 @@ function draw() {
 
     // Your score
     if (scoreSubmitted) {
-      ctx.fillStyle = '#ccc';
+      ctx.fillStyle = '#555';
       ctx.font = '400 10px Montserrat';
       ctx.textAlign = 'center';
       ctx.fillText('your score: ' + score + ' — submitted.', W / 2, H - 80);
     }
 
-    ctx.fillStyle = '#ccc';
+    ctx.fillStyle = '#666';
     ctx.font = '400 11px Montserrat';
     ctx.textAlign = 'center';
     ctx.fillText('tap to play again.', W / 2, H - 45);
@@ -999,8 +1187,19 @@ function draw() {
 }
 
 function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
-initStars();
-initBackground();
+// Init graffiti tags for the background
+function initGraffiti() {
+  bgElements = [];
+  for (var i = 0; i < 10; i++) {
+    bgElements.push({
+      type: 'graffiti', x: Math.random() * W * 2, y: H - 140 - Math.random() * 150,
+      text: graffitiTags[Math.floor(Math.random() * graffitiTags.length)],
+      color: graffitiColors[Math.floor(Math.random() * graffitiColors.length)],
+      size: 14 + Math.random() * 12, rotation: (Math.random() - 0.5) * 0.3, speed: 0.5
+    });
+  }
+}
+initGraffiti();
 gameLoop();
 </script>
 </body>
