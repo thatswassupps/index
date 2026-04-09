@@ -1197,7 +1197,15 @@ function draw() {
   ctx.restore();
 }
 
-function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+var _lastFrameTime = 0;
+var _targetFrameTime = 1000 / 60; // Lock to 60fps for consistent gameplay across all devices
+function gameLoop(timestamp) {
+  requestAnimationFrame(gameLoop);
+  if (timestamp - _lastFrameTime < _targetFrameTime) return;
+  _lastFrameTime = timestamp - ((timestamp - _lastFrameTime) % _targetFrameTime);
+  update();
+  draw();
+}
 // Init graffiti tags for the background
 function initGraffiti() {
   bgElements = [];
