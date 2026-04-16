@@ -323,13 +323,22 @@ function startMusic() {
   bgMusic.play().then(function() { musicStarted = true; }).catch(function(){});
 }
 
-// ── SOUND EFFECTS ──
-var sfxHat = new Audio('https://cdn.jsdelivr.net/gh/thatswassupps/audio@main/sound_effect_01.wav');
-sfxHat.volume = 0.6;
+// ── SOUND EFFECTS — sequential moans ──
+var sfxBase = 'https://raw.githubusercontent.com/thatswassupps/index/refs/heads/main/floppy_crops/assets/sound_effects/';
+var moanFiles = ['moan_01.wav','moan_02.wav','moan_03.wav','moan_04.wav','moan_05.wav','moan_06.wav','moan_07.wav','moan_08.wav','moan_09.wav','moan_10.wav','moan_11.wav'];
+var moanSounds = [];
+var moanIndex = 0;
+moanFiles.forEach(function(f) {
+  var a = new Audio(sfxBase + f);
+  a.volume = 0.6;
+  moanSounds.push(a);
+});
 function playHatSFX() {
   if (isMuted) return;
-  sfxHat.currentTime = 0;
-  sfxHat.play().catch(function(){});
+  var sfx = moanSounds[moanIndex % moanSounds.length];
+  sfx.currentTime = 0;
+  sfx.play().catch(function(){});
+  moanIndex++;
 }
 
 // ── MUTE BUTTON ──
@@ -586,10 +595,6 @@ function drawBucketHat(hat) {
   const bob = Math.sin(frameCount * 0.04 + hat.x * 0.01) * 3;
   ctx.translate(0, bob);
   
-  // Glow ring
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
-  
   // Hat brim
   ctx.fillStyle = '#111';
   ctx.beginPath(); ctx.ellipse(0, 5, 18, 6, 0, 0, Math.PI * 2); ctx.fill();
@@ -672,6 +677,7 @@ function jump() {
     pipes = []; bucketHats = []; particles = [];
     score = 0; pipeTimer = 60;
     currentLevel = 0; levelChangeTimer = 0;
+    moanIndex = 0;
     bird.y = H * 0.45; bird.trail = [];
     scoreSubmitted = false;
     playerName = '';
@@ -1197,17 +1203,7 @@ function draw() {
   ctx.restore();
 }
 
-var _lastFrameTime = 0;
-var _targetFrameTime = 1000 / 60; // Lock to 60fps for consistent gameplay across all devices
-function gameLoop(timestamp) {
-  requestAnimationFrame(gameLoop);
-  if (!timestamp) { update(); draw(); return; } // First call has no timestamp
-  if (_lastFrameTime === 0) _lastFrameTime = timestamp; // Initialize on first rAF callback
-  if (timestamp - _lastFrameTime < _targetFrameTime) return;
-  _lastFrameTime = timestamp - ((timestamp - _lastFrameTime) % _targetFrameTime);
-  update();
-  draw();
-}
+function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
 // Init graffiti tags for the background
 function initGraffiti() {
   bgElements = [];
