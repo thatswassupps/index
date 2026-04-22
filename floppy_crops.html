@@ -323,22 +323,17 @@ function startMusic() {
   bgMusic.play().then(function() { musicStarted = true; }).catch(function(){});
 }
 
-// ── SOUND EFFECTS — sequential moans ──
+// ── SOUND EFFECTS — mhm ──
 var sfxBase = 'https://raw.githubusercontent.com/thatswassupps/index/refs/heads/main/floppy_crops/assets/sound_effects/';
-var moanFiles = ['moan_01.wav','moan_02.wav','moan_03.wav','moan_04.wav','moan_05.wav','moan_06.wav','moan_07.wav','moan_08.wav','moan_09.wav','moan_10.wav','moan_11.wav'];
-var moanSounds = [];
-var moanIndex = 0;
-moanFiles.forEach(function(f) {
-  var a = new Audio(sfxBase + f);
-  a.volume = 0.6;
-  moanSounds.push(a);
-});
+var mhmSound = new Audio(sfxBase + 'mhm_01.wav');
+mhmSound.volume = 0.6;
+
 function playHatSFX() {
   if (isMuted) return;
-  var sfx = moanSounds[moanIndex % moanSounds.length];
-  sfx.currentTime = 0;
+  // Clone the sound node to allow overlapping playback if multiple hats are collected quickly
+  var sfx = mhmSound.cloneNode();
+  sfx.volume = mhmSound.volume;
   sfx.play().catch(function(){});
-  moanIndex++;
 }
 
 // ── MUTE BUTTON ──
@@ -456,22 +451,6 @@ function drawBackground() {
     ctx.drawImage(bimg, bx, by, drawW, drawH);
   });
   ctx.restore();
-
-  // ── Graffiti tags — muted for now ──
-  /*
-  bgElements.forEach(function(el) {
-    if (el.type === 'graffiti') {
-      var gx = wrapX(el.x - bgScroll * el.speed, W + 200) - 100;
-      ctx.save();
-      ctx.translate(gx, el.y);
-      ctx.rotate(el.rotation);
-      ctx.font = '900 ' + el.size + 'px Montserrat';
-      ctx.fillStyle = el.color + 'AA';
-      ctx.fillText(el.text, 0, 0);
-      ctx.restore();
-    }
-  });
-  */
 
   // ── Street signs — scrolling along the ground ──
   if (signImg.complete && signImg.naturalWidth > 0) {
@@ -677,7 +656,6 @@ function jump() {
     pipes = []; bucketHats = []; particles = [];
     score = 0; pipeTimer = 60;
     currentLevel = 0; levelChangeTimer = 0;
-    moanIndex = 0;
     bird.y = H * 0.45; bird.trail = [];
     scoreSubmitted = false;
     playerName = '';
