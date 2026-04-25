@@ -14,6 +14,7 @@ h1 .spot{color:#d4b856}
 .sub{font-size:11px;color:#7a7772;margin-bottom:48px;font-style:italic}
 h2{font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.01em;text-transform:lowercase;color:#d4b856;margin:32px 0 12px}
 p{font-size:12px;color:#b0ada7;line-height:1.8;margin-bottom:16px}
+p strong{color:#d4b856;font-weight:700}
 a{color:#d4b856;text-decoration:none}
 a:hover{text-decoration:underline}
 .footer{margin-top:64px;padding-top:24px;border-top:1px solid rgba(255,255,255,.04);font-size:9px;color:#4a4844}
@@ -23,35 +24,49 @@ a:hover{text-decoration:underline}
 <div class="wrap">
 
 <h1>privacy policy<span class="spot">.</span></h1>
-<p class="sub">last updated: april 2026. riveting stuff.</p>
+<p class="sub">last updated: april 24, 2026. riveting stuff.</p>
 
 <h2>who we are</h2>
-<p>we're thatswassupps. we make streetwear and a game called floppy crops. this policy covers the game (web and ios) and our website at thatswassupps.com.</p>
+<p>we're thatswassupps. we make streetwear and a game called floppy crops. this policy covers the game (web and ios), our website at thatswassupps.com, and the storefront.</p>
 
-<h2>what we collect</h2>
+<h2>what we collect — web version</h2>
 <p>almost nothing. seriously.</p>
-<p>when you play floppy crops and submit a score to the leaderboard, you can enter a display name. that's optional. if you skip it, we call you "anon." we store that display name and your score. that's it.</p>
+<p>when you play floppy crops in a browser and submit a score to the leaderboard, you can enter a display name. that's optional. if you skip it, we call you "anon." we store that display name and your score. that's it.</p>
+
+<h2>what we collect — ios version</h2>
+<p>still almost nothing. ios just has its own plumbing, so we're laying it out.</p>
+<p><strong>game center.</strong> when you launch the app, ios asks if you want to sign into game center. if you say yes, apple gives us a "team player id" — a pseudonymous identifier that's unique to our app. we never see your real apple id, your name, or your email. when you finish a run, we submit your score to two game center leaderboards (alltime + weekly) so you can see where you rank. game center is run by apple and is governed by <a href="https://www.apple.com/legal/privacy/">apple's privacy policy</a>.</p>
+<p><strong>push notifications.</strong> after your first win, the app asks if you want notifications. if you say yes, apple gives us a "device token" so we can send the occasional ping (new event, leaderboard reset, that kind of thing). the token doesn't identify you — uninstall the app and it's gone. we send the token to our backend at <span style="color:#7a7772">thatswassupps.com/api/floppy-crops/push-token</span> so the app can talk to your device.</p>
+<p><strong>crash reports.</strong> if you've opted in under ios settings → privacy &amp; security → analytics &amp; improvements → share with app developers, apple sends us anonymized crash logs through app store connect. that's apple's data flow, not ours; we read the logs to fix bugs.</p>
 
 <h2>what we don't collect</h2>
-<p>no email addresses. no phone numbers. no location data. no device identifiers. no cookies. no tracking pixels. no analytics. no ads. no selling your data. none of that.</p>
+<p>no email addresses. no phone numbers. no location data. no advertising identifier (idfa). no cookies. no tracking pixels. no analytics sdks. no ads. no selling your data. none of that.</p>
 
 <h2>where the data lives</h2>
-<p>leaderboard data (display names and scores) is stored on supabase, a hosted database service. it's publicly visible on the leaderboard — that's the whole point.</p>
+<p>web leaderboard data (display names and scores) is stored on supabase, a hosted database service. it's publicly visible on the leaderboard — that's the whole point.</p>
+<p>ios leaderboard data lives with apple in game center, not on our servers.</p>
+<p>push device tokens are stored in our backend so we can send notifications. they're not shared with anyone.</p>
 
 <h2>third party services</h2>
-<p>the game sends high score notifications to our discord server via webhook. no personal data is included beyond the display name you chose.</p>
+<p>the web version sends high score notifications to our discord server via webhook. no personal data beyond the display name you chose.</p>
+<p>the ios version uses apple game center and apple push notification service. both are apple. that's it — no other sdks.</p>
 
 <h2>children</h2>
-<p>the game is rated 4+ and we don't knowingly collect personal information from children. the optional display name is not considered personal information since it's a freely chosen alias.</p>
+<p>the game is rated 4+ and we don't knowingly collect personal information from children. the optional display name in the web version is a freely chosen alias and is not personal information. the ios version doesn't collect anything that identifies a child.</p>
 
 <h2>your rights</h2>
-<p>want your scores removed from the leaderboard? email us at <a href="mailto:hello@thatswassupps.com">thatswassuppsofficial@gmail.com</a> and we'll handle it.</p>
+<p>want your scores removed from the web leaderboard? want your push token deleted? want any of this gone? email us at <a href="mailto:thatswassuppsofficial@gmail.com">thatswassuppsofficial@gmail.com</a> and we'll handle it.</p>
+<p>game center scores are managed by apple — you can clear them yourself in game center settings or by deleting the app and reinstalling.</p>
+
+<h2>retention</h2>
+<p>we keep what we collect until you ask us to remove it, or until it's no longer useful — whichever comes first. push tokens are dropped automatically when apple tells us they've expired.</p>
 
 <h2>changes</h2>
-<p>if we ever change this policy, we'll update this page. but honestly, we're probably never going to collect more data. that sounds like work.</p>
+<p>if we ever change this policy, we'll update this page and bump the date at the top. but honestly, we're probably never going to collect more data. that sounds like work.</p>
 
 <h2>contact</h2>
-<p><a href="mailto:hello@thatswassupps.com">hello@thatswassupps.com</a></p>
+<p><a href="mailto:thatswassuppsofficial@gmail.com">thatswassuppsofficial@gmail.com</a></p>
+<p>thatswassupps. llc · 528 s nevada st, portland, or 97219</p>
 
 <div class="footer">&copy; 2026 thatswassupps. the most overhyped privacy policy in streetwear.</div>
 
